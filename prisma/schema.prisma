@@ -13,19 +13,20 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Transcation {
+model Transaction {
   id            String                   @id @default(uuid())
   name          String
-  type          TranscationType
+  type          TransactionType
   amount        Decimal                  @db.Decimal(10, 2)
   category      TransactionCategory
   paymentMethod TransactionPaymentMethod
   date          DateTime
   createdAt     DateTime                 @default(now())
   updatedAt     DateTime                 @updatedAt
+  userId        String
 }
 
-enum TranscationType {
+enum TransactionType {
   DEPOSIT
   EXPENSE
   INVESTMENT
