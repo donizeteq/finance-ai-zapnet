@@ -13,7 +13,7 @@ const TransactionsPage = async () => {
         <h1 className="text-2xl font-bold">Transações</h1>
         <Button className="rounded-full font-bold">
           Adicionar transação
-          <ArrowDownUpIcon className="ml-1" />
+          <ArrowDownUpIcon />
         </Button>
       </div>
       <DataTable columns={transactionColumns} data={transactions} />
