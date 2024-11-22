@@ -5,28 +5,10 @@ import { ColumnDef } from "@tanstack/react-table";
 import TransactionTypeBadge from "../_components/type-badge";
 import { Button } from "@/app/_components/ui/button";
 import { PencilIcon, TrashIcon } from "lucide-react";
-
-export const TRANSACTION_CATEGORY_LABELS = {
-  EDUCATION: "Educação",
-  ENTERTAINMENT: "Entretenimento",
-  FOOD: "Alimentação",
-  HOUSING: "Moradia",
-  HEALTH: "Saúde",
-  TRANSPORTATION: "Transporte",
-  OTHER: "Outros",
-  SALARY: "Salário",
-  UTILITY: "Utilidade",
-};
-
-export const TRANSACTION_PAYMENT_METHOD_LABELS = {
-  CASH: "Dinheiro",
-  CREDIT_CARD: "Cartão",
-  BANK_SLIP: "Boleto Bancário",
-  BANK_TRANSFER: "Transferência Bancária",
-  DEBIT_CARD: "Cartão Débito",
-  OTHER: "Outros",
-  PIX: "Pix",
-};
+import {
+  TRANSACTION_CATEGORY_LABELS,
+  TRANSACTION_PAYMENT_METHOD_LABELS,
+} from "@/app/_components/_constants/transactions";
 
 export const transactionColumns: ColumnDef<Transaction>[] = [
   {
