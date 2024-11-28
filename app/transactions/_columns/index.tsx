@@ -55,7 +55,7 @@ export const transactionColumns: ColumnDef<Transaction>[] = [
       }).format(Number(transaction.amount)),
   },
   {
-    accessorKey: "action",
+    accessorKey: "actions",
     header: "Ações",
     cell: ({ row: { original: transaction } }) => {
       return (
