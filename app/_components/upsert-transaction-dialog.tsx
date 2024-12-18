@@ -30,7 +30,7 @@ import {
   TRANSACTION_CATEGORY_OPTIONS,
   TRANSACTION_PAYMENT_METHOD_OPTIONS,
   TRANSACTION_TYPE_OPTIONS,
-} from "./_constants/transactions";
+} from "../_constants/transactions";
 import { DatePicker } from "./ui/date-picker";
 import { z } from "zod";
 import {
