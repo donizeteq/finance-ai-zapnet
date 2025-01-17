@@ -12,46 +12,37 @@ import {
   DialogTrigger,
 } from "@/app/_components/ui/dialog";
 import { BotIcon, Loader2Icon } from "lucide-react";
-import { generateAiReport } from "../_actions/generate-ai-report"; // Importando a função de geração de relatório
+import { generateAiReport } from "../_actions/generate-ai-report";
 import { useState } from "react";
 import { ScrollArea } from "@/app/_components/ui/scroll-area";
 import Markdown from "react-markdown";
 import Link from "next/link";
-import GeneratePdf from "@/app/_components/generate-pdf"; // Importando o componente GeneratePdf
 
 interface AiReportButtonProps {
   hasPremiumPlan: boolean;
   month: string;
-  year: string;
 }
 
-const AiReportButton = ({
-  month,
-  year,
-  hasPremiumPlan,
-}: AiReportButtonProps) => {
+const AiReportButton = ({ month, hasPremiumPlan }: AiReportButtonProps) => {
   const [report, setReport] = useState<string | null>(null);
   const [reportIsLoading, setReportIsLoading] = useState(false);
-
   const handleGenerateReportClick = async () => {
     try {
       setReportIsLoading(true);
-      const aiReport = await generateAiReport({ month, year: year.toString() });
-      console.log(aiReport); // Adicione um log para verificar o resultado
+      const aiReport = await generateAiReport({ month });
+      console.log({ aiReport });
       setReport(aiReport);
     } catch (error) {
-      console.error("Erro ao gerar relatório:", error);
-      alert("Erro ao gerar relatório. Tente novamente mais tarde."); // Notificação de erro
+      console.error(error);
     } finally {
       setReportIsLoading(false);
     }
   };
-
   return (
     <Dialog
       onOpenChange={(open) => {
         if (!open) {
-          setReport(null); // Limpa o relatório ao fechar o diálogo
+          setReport(null);
         }
       }}
     >
@@ -85,8 +76,6 @@ const AiReportButton = ({
                 {reportIsLoading && <Loader2Icon className="animate-spin" />}
                 Gerar Relatório
               </Button>
-              {report && <GeneratePdf report={report} />}{" "}
-              {/* Adicionando o componente GeneratePdf */}
             </DialogFooter>
           </>
         ) : (

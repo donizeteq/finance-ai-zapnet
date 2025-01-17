@@ -3,32 +3,40 @@ import { redirect } from "next/navigation";
 import NavBar from "../_components/navbar";
 import SummaryCards from "./_components/summary-cards";
 import TimeSelect from "./_components/time-select";
-import { isMatch } from "date-fns";
 import TransactionsPieChart from "./_components/transactions-pie-chart";
 import { getDashboard } from "../_data/get-dashboard";
 import ExpensesPerCategory from "./_components/expenses-per-category";
 import LastTransactions from "./_components/last-transactions";
 import { canUserAddTransaction } from "../_data/can-user-add-transaction";
 import AiReportButton from "./_components/ai-report-button";
+import { isMatch } from "date-fns";
 
 interface HomeProps {
   searchParams: {
     month: string;
+    year: string;
   };
 }
 
-const Home = async ({ searchParams: { month } }: HomeProps) => {
+const Home = async ({ searchParams: { month, year } }: HomeProps) => {
   const { userId } = await auth();
   if (!userId) {
     redirect("/login");
   }
+
   const monthIsInvalid = !month || !isMatch(month, "MM");
-  if (monthIsInvalid) {
-    redirect(`?month=${new Date().getMonth() + 1}`);
+  const yearIsInvalid = !year || !isMatch(year, "yyyy");
+  if (monthIsInvalid || yearIsInvalid) {
+    const currentMonth = new Date().getMonth() + 1;
+    const currentYear = new Date().getFullYear();
+    redirect(`?month=${currentMonth}&year=${currentYear}`);
   }
-  const dashboard = await getDashboard(month);
+
+  // Buscando dados do dashboard
+  const dashboard = await getDashboard(month, year);
   const userCanAddTransaction = await canUserAddTransaction();
   const user = await clerkClient().users.getUser(userId);
+
   return (
     <>
       <NavBar />
@@ -38,6 +46,7 @@ const Home = async ({ searchParams: { month } }: HomeProps) => {
           <div className="flex items-center gap-3">
             <AiReportButton
               month={month}
+              year={year}
               hasPremiumPlan={
                 user.publicMetadata.subscriptionPlan === "premium"
               }
@@ -49,6 +58,7 @@ const Home = async ({ searchParams: { month } }: HomeProps) => {
           <div className="flex flex-col gap-6 overflow-hidden">
             <SummaryCards
               month={month}
+              year={year}
               {...dashboard}
               userCanAddTransaction={userCanAddTransaction}
             />
