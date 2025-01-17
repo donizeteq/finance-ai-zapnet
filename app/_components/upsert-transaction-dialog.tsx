@@ -85,12 +85,12 @@ const UpsertTransactionDialog = ({
   const form = useForm<FormSchema>({
     resolver: zodResolver(formSchema),
     defaultValues: defaultValues ?? {
-      amount: 50,
-      category: TransactionCategory.OTHER,
+      amount: 0,
+      category: "" as TransactionCategory,
       date: new Date(),
       name: "",
-      paymentMethod: TransactionPaymentMethod.CASH,
-      type: TransactionType.EXPENSE,
+      paymentMethod: "" as TransactionPaymentMethod,
+      type: "" as TransactionType,
     },
   });
 
@@ -112,7 +112,14 @@ const UpsertTransactionDialog = ({
       onOpenChange={(open) => {
         setIsOpen(open);
         if (!open) {
-          form.reset();
+          form.reset({
+            amount: 0,
+            category: "" as TransactionCategory,
+            date: new Date(),
+            name: "",
+            paymentMethod: "" as TransactionPaymentMethod,
+            type: "" as TransactionType,
+          });
         }
       }}
     >
@@ -173,7 +180,7 @@ const UpsertTransactionDialog = ({
                   >
                     <FormControl>
                       <SelectTrigger>
-                        <SelectValue placeholder="Selecione o tipo..." />
+                        <SelectValue placeholder="Selecione o tipo de transação..." />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
@@ -200,7 +207,7 @@ const UpsertTransactionDialog = ({
                   >
                     <FormControl>
                       <SelectTrigger>
-                        <SelectValue placeholder="Selecione categoria..." />
+                        <SelectValue placeholder="Selecione a categoria..." />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
@@ -227,7 +234,7 @@ const UpsertTransactionDialog = ({
                   >
                     <FormControl>
                       <SelectTrigger>
-                        <SelectValue placeholder="Selecione um método de pagamento..." />
+                        <SelectValue placeholder="Selecione o método de pagamento..." />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
