@@ -3,13 +3,10 @@
 import { db } from "@/app/_lib/prisma";
 import { auth, clerkClient } from "@clerk/nextjs/server";
 import OpenAI from "openai";
-import { GenerateAiReportSchema, generateAiReportSchema } from "./schema";
+import { GenerateAiReportSchema, generateAiReportSchema } from "./shema";
 
-export const generateAiReport = async ({
-  month,
-  year,
-}: GenerateAiReportSchema) => {
-  generateAiReportSchema.parse({ month, year });
+export const generateAiReport = async ({ month }: GenerateAiReportSchema) => {
+  generateAiReportSchema.parse({ month });
   const { userId } = await auth();
   if (!userId) {
     throw new Error("Unauthorized");
@@ -17,25 +14,21 @@ export const generateAiReport = async ({
   const user = await clerkClient().users.getUser(userId);
   const hasPremiumPlan = user.publicMetadata.subscriptionPlan === "premium";
   if (!hasPremiumPlan) {
-    throw new Error(
-      "Você precisa de um plano premium para gerar relatórios de IA",
-    );
+    throw new Error("You need a premium plan to generate AI reports");
   }
   const openAi = new OpenAI({
     apiKey: process.env.OPENAI_API_KEY,
   });
-
-  // Pegar as transações do mês recebido
+  // pegar as transações do mês recebido
   const transactions = await db.transaction.findMany({
     where: {
       date: {
-        gte: new Date(`${year}-${month}-1`),
-        lt: new Date(`${year}-${month}-31`),
+        gte: new Date(`2024-${month}-01`),
+        lt: new Date(`2024-${month}-31`),
       },
     },
   });
-
-  // Mandar as transações para o ChatGPT e pedir para ele gerar relatório com insights
+  //mandar as transações para chatGPT e pedir para ele gerar relatório com insights
   const content = `Gere um relatório com insights sobre as minhas finanças, com dicas e orientações de como melhorar minha vida financeira. As transações estão divididas por ponto e vírgula. A estrutura de cada uma é {DATA}-{TIPO}-{VALOR}-{CATEGORIA}. São elas:
   ${transactions
     .map(
@@ -43,7 +36,6 @@ export const generateAiReport = async ({
         `${transaction.date.toLocaleDateString("pt-BR")}-R$${transaction.amount}-${transaction.type}-${transaction.category}`,
     )
     .join(";")}`;
-
   const completion = await openAi.chat.completions.create({
     model: "gpt-4o-mini",
     messages: [
@@ -58,7 +50,6 @@ export const generateAiReport = async ({
       },
     ],
   });
-
-  // Pegar o relatório gerado pelo chatGPT e retornar para o usuário
+  //pegar o relatório gerado pelo chatGPT e retornar para o usuário
   return completion.choices[0].message.content;
 };
