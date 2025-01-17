@@ -29,8 +29,8 @@ export const generateAiReport = async ({
   const transactions = await db.transaction.findMany({
     where: {
       date: {
-        gte: new Date(`${year}-${month}-1`),
-        lt: new Date(`${year}-${month}-31`),
+        gte: new Date(`2024-${month}-1`),
+        lt: new Date(`2024-${month}-31`),
       },
     },
   });
