@@ -38,10 +38,6 @@ export const TRANSACTION_PAYMENT_METHOD_LABELS = {
 
 export const TRANSACTION_TYPE_OPTIONS = [
   {
-    value: "placeholder",
-    label: "Selecione um tipo",
-  },
-  {
     value: TransactionType.EXPENSE,
     label: "Despesa",
   },
