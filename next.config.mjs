@@ -40,11 +40,10 @@ const nextConfig = {
     formats: ['image/webp', 'image/avif'],
   },
   
-  // Configurações de experimental features (apenas features seguras)
-  experimental: {
-    serverComponentsExternalPackages: ['@prisma/client'],
-  },
+  // Configurações de external packages para Server Components (Next.js 15)
+  serverExternalPackages: ['@prisma/client'],
   
+
   // Configurações de webpack para segurança
   webpack: (config, { dev, isServer }) => {
     if (!dev && !isServer) {

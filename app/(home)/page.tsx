@@ -12,13 +12,14 @@ import AiReportButton from "./_components/ai-report-button";
 import { isMatch } from "date-fns";
 
 interface HomeProps {
-  searchParams: {
+  searchParams: Promise<{
     month: string;
     year: string;
-  };
+  }>;
 }
 
-const Home = async ({ searchParams: { month, year } }: HomeProps) => {
+const Home = async ({ searchParams }: HomeProps) => {
+  const { month, year } = await searchParams;
   const { userId } = await auth();
   if (!userId) {
     redirect("/login");
