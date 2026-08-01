@@ -1,3 +1,5 @@
+"use client";
+
 import { Button } from "./ui/button";
 import {
   Dialog,
@@ -41,6 +43,9 @@ import {
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { upsertTransaction } from "../_actions/upsert-transaction";
+import { toast } from "sonner";
+import { Loader2Icon } from "lucide-react";
+import { useState } from "react";
 
 interface UpsertTransactionDialogProps {
   isOpen: boolean;
@@ -64,17 +69,26 @@ const formSchema = z.object({
     required_error: "O tipo é obrigatório.",
   }),
   category: z.nativeEnum(TransactionCategory, {
-    required_error: "A categoria é obrigatório.",
+    required_error: "A categoria é obrigatória.",
   }),
   paymentMethod: z.nativeEnum(TransactionPaymentMethod, {
-    required_error: "O método de pagamento é Obrigatório.",
+    required_error: "O método de pagamento é obrigatório.",
   }),
   date: z.date({
-    required_error: "A data é obrigatório.",
+    required_error: "A data é obrigatória.",
   }),
 });
 
 type FormSchema = z.infer<typeof formSchema>;
+
+const DEFAULT_VALUES: FormSchema = {
+  amount: 0,
+  category: "" as TransactionCategory,
+  date: new Date(),
+  name: "",
+  paymentMethod: "" as TransactionPaymentMethod,
+  type: "" as TransactionType,
+};
 
 const UpsertTransactionDialog = ({
   isOpen,
@@ -82,45 +96,39 @@ const UpsertTransactionDialog = ({
   transactionId,
   setIsOpen,
 }: UpsertTransactionDialogProps) => {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const isUpdate = Boolean(transactionId);
+
   const form = useForm<FormSchema>({
     resolver: zodResolver(formSchema),
-    defaultValues: defaultValues ?? {
-      amount: 0,
-      category: "" as TransactionCategory,
-      date: new Date(),
-      name: "",
-      paymentMethod: "" as TransactionPaymentMethod,
-      type: "" as TransactionType,
-    },
+    defaultValues: defaultValues ?? DEFAULT_VALUES,
   });
 
   const onSubmit = async (data: FormSchema) => {
     try {
+      setIsSubmitting(true);
       await upsertTransaction({ ...data, id: transactionId });
       setIsOpen(false);
-      form.reset();
+      form.reset(DEFAULT_VALUES);
+      toast.success(
+        isUpdate
+          ? "Transação atualizada com sucesso!"
+          : "Transação adicionada com sucesso!",
+      );
     } catch (error) {
       console.error(error);
+      toast.error("Ocorreu um erro ao salvar. Tente novamente.");
+    } finally {
+      setIsSubmitting(false);
     }
   };
-
-  const isUpdate = Boolean(transactionId);
 
   return (
     <Dialog
       open={isOpen}
       onOpenChange={(open) => {
         setIsOpen(open);
-        if (!open) {
-          form.reset({
-            amount: 0,
-            category: "" as TransactionCategory,
-            date: new Date(),
-            name: "",
-            paymentMethod: "" as TransactionPaymentMethod,
-            type: "" as TransactionType,
-          });
-        }
+        if (!open) form.reset(DEFAULT_VALUES);
       }}
     >
       <DialogTrigger asChild></DialogTrigger>
@@ -180,7 +188,7 @@ const UpsertTransactionDialog = ({
                   >
                     <FormControl>
                       <SelectTrigger>
-                        <SelectValue placeholder="Selecione o tipo de transação..." />
+                        <SelectValue placeholder="Selecione o tipo..." />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
@@ -234,7 +242,7 @@ const UpsertTransactionDialog = ({
                   >
                     <FormControl>
                       <SelectTrigger>
-                        <SelectValue placeholder="Selecione o método de pagamento..." />
+                        <SelectValue placeholder="Selecione o método..." />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
@@ -262,11 +270,14 @@ const UpsertTransactionDialog = ({
             />
             <DialogFooter>
               <DialogClose asChild>
-                <Button type="button" variant="outline">
+                <Button type="button" variant="outline" disabled={isSubmitting}>
                   Cancelar
                 </Button>
               </DialogClose>
-              <Button type="submit">
+              <Button type="submit" disabled={isSubmitting}>
+                {isSubmitting && (
+                  <Loader2Icon className="mr-2 animate-spin" size={16} />
+                )}
                 {isUpdate ? "Atualizar" : "Adicionar"}
               </Button>
             </DialogFooter>

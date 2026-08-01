@@ -12,12 +12,13 @@ import {
   DialogTrigger,
 } from "@/app/_components/ui/dialog";
 import { BotIcon, Loader2Icon } from "lucide-react";
-import { generateAiReport } from "../_actions/generate-ai-report"; // Importando a função de geração de relatório
+import { generateAiReport } from "../_actions/generate-ai-report";
 import { useState } from "react";
 import { ScrollArea } from "@/app/_components/ui/scroll-area";
 import Markdown from "react-markdown";
 import Link from "next/link";
-import GeneratePdf from "@/app/_components/generate-pdf"; // Importando o componente GeneratePdf
+import GeneratePdf from "@/app/_components/generate-pdf";
+import { toast } from "sonner";
 
 interface AiReportButtonProps {
   hasPremiumPlan: boolean;
@@ -37,11 +38,10 @@ const AiReportButton = ({
     try {
       setReportIsLoading(true);
       const aiReport = await generateAiReport({ month, year: year.toString() });
-      console.log(aiReport); // Adicione um log para verificar o resultado
       setReport(aiReport);
     } catch (error) {
       console.error("Erro ao gerar relatório:", error);
-      alert("Erro ao gerar relatório. Tente novamente mais tarde."); // Notificação de erro
+      toast.error("Erro ao gerar relatório. Tente novamente mais tarde.");
     } finally {
       setReportIsLoading(false);
     }
@@ -50,15 +50,13 @@ const AiReportButton = ({
   return (
     <Dialog
       onOpenChange={(open) => {
-        if (!open) {
-          setReport(null); // Limpa o relatório ao fechar o diálogo
-        }
+        if (!open) setReport(null);
       }}
     >
       <DialogTrigger asChild>
         <Button variant="ghost">
           Relatório IA
-          <BotIcon />
+          <BotIcon className="ml-2" size={16} />
         </Button>
       </DialogTrigger>
       <DialogContent className="max-w-[600px]">
@@ -72,21 +70,34 @@ const AiReportButton = ({
               </DialogDescription>
             </DialogHeader>
             <ScrollArea className="prose max-h-[450px] text-white prose-h3:text-white prose-h4:text-white prose-strong:text-white">
-              <Markdown>{report}</Markdown>
+              {report ? (
+                <Markdown>{report}</Markdown>
+              ) : (
+                <p className="text-center text-sm text-muted-foreground py-8">
+                  Clique em &quot;Gerar Relatório&quot; para analisar suas finanças com IA.
+                </p>
+              )}
             </ScrollArea>
             <DialogFooter>
               <DialogClose asChild>
-                <Button variant="ghost">Cancelar</Button>
+                <Button variant="ghost" disabled={reportIsLoading}>
+                  Cancelar
+                </Button>
               </DialogClose>
               <Button
                 onClick={handleGenerateReportClick}
                 disabled={reportIsLoading}
               >
-                {reportIsLoading && <Loader2Icon className="animate-spin" />}
-                Gerar Relatório
+                {reportIsLoading ? (
+                  <>
+                    <Loader2Icon className="mr-2 animate-spin" size={16} />
+                    Gerando...
+                  </>
+                ) : (
+                  "Gerar Relatório"
+                )}
               </Button>
-              {report && <GeneratePdf report={report} />}{" "}
-              {/* Adicionando o componente GeneratePdf */}
+              {report && <GeneratePdf report={report} />}
             </DialogFooter>
           </>
         ) : (

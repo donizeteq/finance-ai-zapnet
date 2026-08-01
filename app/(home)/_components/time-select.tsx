@@ -34,17 +34,22 @@ const TimeSelect = () => {
   const searchParams = useSearchParams();
   const month = searchParams.get("month");
   const year = searchParams.get("year");
+
+  // Remove zero à esquerda para bater com os values do Select ("1"..."12")
+  const monthValue = month ? String(Number(month)) : "";
+
   const handleMonthChange = (month: string) => {
     push(`/?month=${month}&year=${year}`);
   };
   const handleYearChange = (year: string) => {
     push(`/?month=${month}&year=${year}`);
   };
+
   return (
     <div className="flex gap-2">
       <Select
         onValueChange={(value) => handleMonthChange(value)}
-        defaultValue={month ?? ""}
+        value={monthValue}
       >
         <SelectTrigger className="w-[150px] rounded-full">
           <SelectValue placeholder="Mês" />
@@ -59,7 +64,7 @@ const TimeSelect = () => {
       </Select>
       <Select
         onValueChange={(value) => handleYearChange(value)}
-        defaultValue={year ?? ""}
+        value={year ?? ""}
       >
         <SelectTrigger className="w-[100px] rounded-full">
           <SelectValue placeholder="Ano" />

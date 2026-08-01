@@ -18,7 +18,7 @@ export const getDashboard = async (month: string, year: string) => {
     userId,
     date: {
       gte: startDate,
-      lt: endDate,
+      lte: endDate,
     },
   };
 
