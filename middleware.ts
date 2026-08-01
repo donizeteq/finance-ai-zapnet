@@ -7,8 +7,8 @@ const isProtectedRoute = createRouteMatcher([
   "/subscription(.*)",
 ]);
 
-export default clerkMiddleware((auth, request) => {
-  const { userId } = auth();
+export default clerkMiddleware(async (auth, request) => {
+  const { userId } = await auth();
 
   // Proteção contra ataques de força bruta
   const userAgent = request.headers.get("user-agent");
@@ -18,7 +18,7 @@ export default clerkMiddleware((auth, request) => {
 
   // Verificar se é uma rota protegida — usa o redirectToSignIn nativo do Clerk
   if (isProtectedRoute(request) && !userId) {
-    return auth().redirectToSignIn({ returnBackUrl: request.url });
+    return (await auth()).redirectToSignIn({ returnBackUrl: request.url });
   }
 
   // Headers de segurança

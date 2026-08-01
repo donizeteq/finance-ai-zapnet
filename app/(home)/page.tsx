@@ -36,7 +36,7 @@ const Home = async ({ searchParams: { month, year } }: HomeProps) => {
   const [dashboard, userCanAddTransaction, user] = await Promise.all([
     getDashboard(month, year),
     canUserAddTransaction(),
-    clerkClient().users.getUser(userId),
+    (await clerkClient()).users.getUser(userId),
   ]);
 
   return (

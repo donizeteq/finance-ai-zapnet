@@ -15,7 +15,7 @@ export const generateAiReport = async ({
   if (!userId) {
     throw new Error("Unauthorized");
   }
-  const user = await clerkClient().users.getUser(userId);
+  const user = await (await clerkClient()).users.getUser(userId);
   const hasPremiumPlan = user.publicMetadata.subscriptionPlan === "premium";
   if (!hasPremiumPlan) {
     throw new Error(

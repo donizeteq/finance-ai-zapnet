@@ -101,7 +101,7 @@ export const POST = async (request: Request) => {
             return new NextResponse("Invalid user ID", { status: 400 });
           }
 
-          await clerkClient().users.updateUser(clerkUserId, {
+          await (await clerkClient()).users.updateUser(clerkUserId, {
             privateMetadata: {
               stripeCustomerId: customer,
               stripeSubscriptionId: subscription,
@@ -142,7 +142,7 @@ export const POST = async (request: Request) => {
             return new NextResponse("Invalid user ID", { status: 400 });
           }
 
-          await clerkClient().users.updateUser(clerkUserId, {
+          await (await clerkClient()).users.updateUser(clerkUserId, {
             privateMetadata: {
               stripeCustomerId: null,
               stripeSubscriptionId: null,
