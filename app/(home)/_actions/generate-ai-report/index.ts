@@ -3,6 +3,7 @@
 import { db } from "@/app/_lib/prisma";
 import { auth, clerkClient } from "@clerk/nextjs/server";
 import OpenAI from "openai";
+import { endOfMonth, startOfMonth } from "date-fns";
 import { GenerateAiReportSchema, generateAiReportSchema } from "./schema";
 
 export const generateAiReport = async ({
@@ -28,9 +29,10 @@ export const generateAiReport = async ({
   // Pegar as transações do mês recebido
   const transactions = await db.transaction.findMany({
     where: {
+      userId,
       date: {
-        gte: new Date(`${year}-${month}-1`),
-        lt: new Date(`${year}-${month}-31`),
+        gte: startOfMonth(new Date(`${year}-${month}-01`)),
+        lt: endOfMonth(new Date(`${year}-${month}-01`)),
       },
     },
   });

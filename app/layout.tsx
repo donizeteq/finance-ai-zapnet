@@ -25,6 +25,15 @@ export default function RootLayout({
         <ClerkProvider
           appearance={{
             baseTheme: dark,
+            variables: {
+              colorBackground: "#1c1917",
+              colorInputBackground: "#1c1917",
+              colorText: "#ffffff",
+              colorTextSecondary: "#a1a1aa",
+              colorPrimary: "#55b02e",
+              colorInputText: "#ffffff",
+              borderRadius: "0.5rem",
+            },
           }}
         >
           <div className="flex h-full flex-col overflow-hidden">{children}</div>

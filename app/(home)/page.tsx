@@ -32,10 +32,12 @@ const Home = async ({ searchParams: { month, year } }: HomeProps) => {
     redirect(`?month=${currentMonth}&year=${currentYear}`);
   }
 
-  // Buscando dados do dashboard
-  const dashboard = await getDashboard(month, year);
-  const userCanAddTransaction = await canUserAddTransaction();
-  const user = await clerkClient().users.getUser(userId);
+  // Buscando dados do dashboard em paralelo
+  const [dashboard, userCanAddTransaction, user] = await Promise.all([
+    getDashboard(month, year),
+    canUserAddTransaction(),
+    clerkClient().users.getUser(userId),
+  ]);
 
   return (
     <>

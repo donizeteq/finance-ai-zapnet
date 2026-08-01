@@ -2,86 +2,98 @@ import { db } from "@/app/_lib/prisma";
 import { TransactionType } from "@prisma/client";
 import { TotalExpensePerCategory, TransactionPercentagePerType } from "./types";
 import { auth } from "@clerk/nextjs/server";
+import { endOfMonth, startOfMonth } from "date-fns";
 
 export const getDashboard = async (month: string, year: string) => {
   const { userId } = await auth();
   if (!userId) {
     throw new Error("Unauthorized");
   }
+
+  const startDate = startOfMonth(new Date(`${year}-${month}-01`));
+  const endDate = endOfMonth(new Date(`${year}-${month}-01`));
+
   const where = {
     userId,
     date: {
-      gte: new Date(`${year}-${month}-1`),
-      lt: new Date(`${year}-${month}-31`),
+      gte: startDate,
+      lt: endDate,
     },
   };
-  const depositsTotal = Number(
-    (
-      await db.transaction.aggregate({
-        where: { ...where, type: "DEPOSIT" },
-        _sum: { amount: true },
-      })
-    )?._sum?.amount,
-  );
-  const investmentsTotal = Number(
-    (
-      await db.transaction.aggregate({
-        where: { ...where, type: "INVESTMENT" },
-        _sum: { amount: true },
-      })
-    )?._sum?.amount,
-  );
-  const expensesTotal = Number(
-    (
-      await db.transaction.aggregate({
-        where: { ...where, type: "EXPENSE" },
-        _sum: { amount: true },
-      })
-    )?._sum?.amount,
-  );
-  const balance = depositsTotal - investmentsTotal - expensesTotal;
-  const transactionsTotal = Number(
-    (
-      await db.transaction.aggregate({
-        where,
-        _sum: { amount: true },
-      })
-    )._sum.amount,
-  );
-  const typesPercentage: TransactionPercentagePerType = {
-    [TransactionType.DEPOSIT]: Math.round(
-      (Number(depositsTotal || 0) / Number(transactionsTotal)) * 100,
-    ),
-    [TransactionType.EXPENSE]: Math.round(
-      (Number(expensesTotal || 0) / Number(transactionsTotal)) * 100,
-    ),
-    [TransactionType.INVESTMENT]: Math.round(
-      (Number(investmentsTotal || 0) / Number(transactionsTotal)) * 100,
-    ),
-  };
-  const totalExpensePerCategory: TotalExpensePerCategory[] = (
-    await db.transaction.groupBy({
+
+  // Todas as queries em paralelo
+  const [
+    depositsResult,
+    investmentsResult,
+    expensesResult,
+    transactionsTotalResult,
+    totalExpensePerCategoryRaw,
+    lastTransactions,
+  ] = await Promise.all([
+    db.transaction.aggregate({
+      where: { ...where, type: TransactionType.DEPOSIT },
+      _sum: { amount: true },
+    }),
+    db.transaction.aggregate({
+      where: { ...where, type: TransactionType.INVESTMENT },
+      _sum: { amount: true },
+    }),
+    db.transaction.aggregate({
+      where: { ...where, type: TransactionType.EXPENSE },
+      _sum: { amount: true },
+    }),
+    db.transaction.aggregate({
+      where,
+      _sum: { amount: true },
+    }),
+    db.transaction.groupBy({
       by: ["category"],
-      where: {
-        ...where,
-        type: TransactionType.EXPENSE,
-      },
-      _sum: {
-        amount: true,
-      },
-    })
-  ).map((category) => ({
-    category: category.category,
-    totalAmount: Number(category._sum.amount),
-    percentageOfTotal: Math.round(
-      (Number(category._sum.amount) / Number(expensesTotal)) * 100,
-    ),
-  }));
-  const lastTransactions = await db.transaction.findMany({
-    where,
-    orderBy: { date: "desc" },
-    take: 20,
-  });
+      where: { ...where, type: TransactionType.EXPENSE },
+      _sum: { amount: true },
+    }),
+    db.transaction.findMany({
+      where,
+      orderBy: { date: "desc" },
+      take: 20,
+    }),
+  ]);
+
+  const depositsTotal = Number(depositsResult._sum?.amount ?? 0);
+  const investmentsTotal = Number(investmentsResult._sum?.amount ?? 0);
+  const expensesTotal = Number(expensesResult._sum?.amount ?? 0);
+  const transactionsTotal = Number(transactionsTotalResult._sum?.amount ?? 0);
+  const balance = depositsTotal - investmentsTotal - expensesTotal;
+
+  // Evitar NaN/divisão por zero quando não há transações
+  const typesPercentage: TransactionPercentagePerType =
+    transactionsTotal > 0
+      ? {
+          [TransactionType.DEPOSIT]: Math.round(
+            (depositsTotal / transactionsTotal) * 100,
+          ),
+          [TransactionType.EXPENSE]: Math.round(
+            (expensesTotal / transactionsTotal) * 100,
+          ),
+          [TransactionType.INVESTMENT]: Math.round(
+            (investmentsTotal / transactionsTotal) * 100,
+          ),
+        }
+      : {
+          [TransactionType.DEPOSIT]: 0,
+          [TransactionType.EXPENSE]: 0,
+          [TransactionType.INVESTMENT]: 0,
+        };
+
+  const totalExpensePerCategory: TotalExpensePerCategory[] =
+    totalExpensePerCategoryRaw.map((category) => ({
+      category: category.category,
+      totalAmount: Number(category._sum.amount),
+      percentageOfTotal:
+        expensesTotal > 0
+          ? Math.round((Number(category._sum.amount) / expensesTotal) * 100)
+          : 0,
+    }));
+
   return {
     balance,
     depositsTotal,

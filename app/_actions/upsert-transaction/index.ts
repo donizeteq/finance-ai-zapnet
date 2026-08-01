@@ -26,6 +26,18 @@ export const upsertTransaction = async (params: UpsertTransactionParams) => {
   if (!userId) {
     throw new Error("Unauthorized");
   }
+
+  // Se for update, garantir que a transação pertence ao usuário autenticado
+  if (params.id) {
+    const existing = await db.transaction.findUnique({
+      where: { id: params.id },
+      select: { userId: true },
+    });
+    if (!existing || existing.userId !== userId) {
+      throw new Error("Unauthorized");
+    }
+  }
+
   await db.transaction.upsert({
     update: { ...params, userId },
     create: { ...params, userId },
@@ -34,4 +46,5 @@ export const upsertTransaction = async (params: UpsertTransactionParams) => {
     },
   });
   revalidatePath("/transactions");
+  revalidatePath("/");
 };

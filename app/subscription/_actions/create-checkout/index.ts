@@ -17,8 +17,8 @@ export const createStripeCheckout = async () => {
   const session = await stripe.checkout.sessions.create({
     payment_method_types: ["card"],
     mode: "subscription",
-    success_url: `${process.env.APP_URL}/Obrigado por confiar nosso trabalho`,
-    cancel_url: `${process.env.APP_URL}/Obrigado foi muito excepcional esta com você`,
+    success_url: `${process.env.APP_URL}/subscription?success=true`,
+    cancel_url: `${process.env.APP_URL}/subscription?canceled=true`,
     subscription_data: {
       metadata: {
         clerk_user_id: userId,
