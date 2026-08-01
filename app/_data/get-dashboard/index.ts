@@ -10,8 +10,9 @@ export const getDashboard = async (month: string, year: string) => {
     throw new Error("Unauthorized");
   }
 
-  const startDate = startOfMonth(new Date(`${year}-${month}-01`));
-  const endDate = endOfMonth(new Date(`${year}-${month}-01`));
+  const paddedMonth = month.padStart(2, "0");
+  const startDate = startOfMonth(new Date(`${year}-${paddedMonth}-01`));
+  const endDate = endOfMonth(new Date(`${year}-${paddedMonth}-01`));
 
   const where = {
     userId,

@@ -27,7 +27,7 @@ const loginPage = async () => {
           para monitorar suas movimentações, e oferecer insights
           personalizados, facilitando o controle do seu orçamento.
         </p>
-        <SignInButton mode="redirect" fallbackRedirectUrl="/">
+        <SignInButton mode="modal">
           <Button variant="outline">
             <LogInIcon className="mr-2" />
             Fazer Login ou criar conta

@@ -24,10 +24,10 @@ const Home = async ({ searchParams: { month, year } }: HomeProps) => {
     redirect("/login");
   }
 
-  const monthIsInvalid = !month || !isMatch(month, "MM");
+  const monthIsInvalid = !month || !isMatch(month.padStart(2, "0"), "MM");
   const yearIsInvalid = !year || !isMatch(year, "yyyy");
   if (monthIsInvalid || yearIsInvalid) {
-    const currentMonth = new Date().getMonth() + 1;
+    const currentMonth = String(new Date().getMonth() + 1).padStart(2, "0");
     const currentYear = new Date().getFullYear();
     redirect(`?month=${currentMonth}&year=${currentYear}`);
   }
