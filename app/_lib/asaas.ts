@@ -1,4 +1,6 @@
 import { timingSafeEqual } from "node:crypto";
+import fs from "node:fs";
+import path from "node:path";
 
 function getConfig() {
   const url = process.env.ASAAS_API_URL || "https://api.asaas.com/v3";
@@ -9,8 +11,6 @@ function getConfig() {
   // como expansão de variável pelo parser de .env do Next.js)
   if (!key) {
     try {
-      const fs = require("fs");
-      const path = require("path");
       const keyPath = path.join(process.cwd(), ".asaas-key");
       const keyFile = fs.readFileSync(keyPath, "utf8").trim();
       if (keyFile) key = keyFile;

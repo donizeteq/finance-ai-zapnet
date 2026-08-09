@@ -5,6 +5,8 @@ import { SignInButton } from "@clerk/nextjs";
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 
+export const dynamic = "force-dynamic";
+
 const loginPage = async () => {
   const { userId } = await auth();
   if (userId) {
