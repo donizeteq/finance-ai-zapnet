@@ -26,7 +26,11 @@ export const generateAiReport = async ({
   }
   const openAi = new OpenAI({
     apiKey: process.env.OPENAI_API_KEY || "omnirouter-proxy",
-    baseURL: process.env.OPENAI_BASE_URL || "http://localhost:20128/v1",
+    baseURL:
+      process.env.OPENAI_BASE_URL ||
+      (process.env.NODE_ENV === "production"
+        ? "https://omniroute.talkyngo.com.br/v1"
+        : "http://localhost:20128/v1"),
   });
 
   // Pegar as transações do mês recebido (intervalo em horário local)
