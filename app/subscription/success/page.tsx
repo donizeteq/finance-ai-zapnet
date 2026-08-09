@@ -2,6 +2,8 @@ import { Button } from "@/app/_components/ui/button";
 import { CheckCircle2Icon } from "lucide-react";
 import Link from "next/link";
 
+export const dynamic = "force-dynamic";
+
 export default function SubscriptionSuccessPage() {
   return (
     <div className="flex flex-col items-center justify-center h-screen p-6 text-center">

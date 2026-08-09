@@ -11,6 +11,11 @@
     "test": "vitest run",
     "prepare": "husky && prisma generate"
   },
+  "overrides": {
+    "react-day-picker": {
+      "react": "$react"
+    }
+  },
   "dependencies": {
     "@clerk/nextjs": "^6.39.6",
     "@clerk/themes": "^2.4.57",

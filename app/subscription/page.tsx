@@ -10,6 +10,8 @@ import { getUserSubscriptionPlan } from "../_data/get-user-subscription-plan";
 import { differenceInCalendarDays } from "date-fns";
 import { PREMIUM_PLAN_TRIAL_DAYS } from "../_constants/subscription";
 
+export const dynamic = "force-dynamic";
+
 const SubscriptionPage = async () => {
   const { userId } = await auth();
   if (!userId) {

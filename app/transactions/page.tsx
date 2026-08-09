@@ -9,6 +9,8 @@ import { ScrollArea } from "../_components/ui/scroll-area";
 import { canUserAddTransaction } from "../_data/can-user-add-transaction";
 import type { Metadata } from "next";
 
+export const dynamic = "force-dynamic";
+
 export const metadata: Metadata = {
   title: "Transações | Finance AI",
   description: "Gerencie todas as suas transações financeiras.",

@@ -18,6 +18,8 @@ import {
   LastTransactionsSkeleton,
 } from "./_components/dashboard-skeleton";
 
+export const dynamic = "force-dynamic";
+
 interface HomeProps {
   searchParams: Promise<{
     month: string;
