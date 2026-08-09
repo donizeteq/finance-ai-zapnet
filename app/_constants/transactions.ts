@@ -4,6 +4,8 @@ import {
   TransactionType,
 } from "@prisma/client";
 
+export const FREE_PLAN_MONTHLY_TRANSACTION_LIMIT = 10;
+
 export const TRANSACTION_PAYMENT_METHOD_ICONS = {
   [TransactionPaymentMethod.CREDIT_CARD]: "credit-card.svg",
   [TransactionPaymentMethod.DEBIT_CARD]: "debit-card.svg",

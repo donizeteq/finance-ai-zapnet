@@ -6,23 +6,40 @@ import { CheckIcon, XIcon } from "lucide-react";
 import AcquirePlanButton from "./_components/acquire-plan-button";
 import { Badge } from "../_components/ui/badge";
 import { getCurrentMonthTransactions } from "../_data/get-current-month-transactions";
+import { getUserSubscriptionPlan } from "../_data/get-user-subscription-plan";
+import { differenceInCalendarDays } from "date-fns";
+import { PREMIUM_PLAN_TRIAL_DAYS } from "../_constants/subscription";
 
 const SubscriptionPage = async () => {
   const { userId } = await auth();
   if (!userId) {
     redirect("/login");
   }
-  const user = await (await clerkClient()).users.getUser(userId);
-  const currentMonthTransactions = await getCurrentMonthTransactions();
-  const hasPremiumPlan = user.publicMetadata.subscriptionPlan == "premium";
+  const [subscriptionPlan, user, currentMonthTransactions] = await Promise.all([
+    getUserSubscriptionPlan(userId),
+    (await clerkClient()).users.getUser(userId),
+    getCurrentMonthTransactions(),
+  ]);
+
+  const hasPremiumPlan = subscriptionPlan === "premium";
+  const premiumSource = user.publicMetadata.premiumSource;
+  const isTrial = premiumSource === "trial";
+  const premiumUntil =
+    typeof user.publicMetadata.premiumUntil === "string"
+      ? new Date(user.publicMetadata.premiumUntil)
+      : null;
+  const trialDaysLeft =
+    isTrial && premiumUntil
+      ? Math.max(0, differenceInCalendarDays(premiumUntil, new Date()))
+      : 0;
   return (
     <>
       <NavBar />
       <div className="space-y-6 p-6">
         <h1 className="text-2xl font-bold">Assinatura</h1>
 
-        <div className="flex gap-6">
-          <Card className="w-[450px]">
+        <div className="flex flex-col gap-4 md:flex-row md:gap-6">
+          <Card className="w-full md:w-[450px]">
             <CardHeader className="border-b border-solid py-8">
               <h2 className="text-center text-2xl font-semibold">
                 Plano Básico
@@ -46,11 +63,11 @@ const SubscriptionPage = async () => {
               </div>
             </CardContent>
           </Card>
-          <Card className="w-[450px]">
+          <Card className="w-full md:w-[450px]">
             <CardHeader className="relative border-b border-solid py-8">
               {hasPremiumPlan && (
                 <Badge className="absolute left-4 top-12 bg-primary/10 text-primary">
-                  Ativo
+                  {isTrial ? `Trial ativo (${trialDaysLeft}d restantes)` : "Ativo"}
                 </Badge>
               )}
               <h2 className="text-center text-2xl font-semibold">
@@ -71,6 +88,11 @@ const SubscriptionPage = async () => {
                 <CheckIcon className="text-primary" />
                 <p>Relatórios de IA</p>
               </div>
+              {!hasPremiumPlan && (
+                <p className="text-center text-sm text-muted-foreground">
+                  Teste grátis por {PREMIUM_PLAN_TRIAL_DAYS} dias, sem cartão
+                </p>
+              )}
               <AcquirePlanButton />
             </CardContent>
           </Card>

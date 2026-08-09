@@ -40,7 +40,7 @@ const DeleteTransactionButton = ({
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>
-            Voçê deseja realmente deletar essa transação?
+            Você deseja realmente deletar essa transação?
           </AlertDialogTitle>
           <AlertDialogDescription>
             Essa ação não pode ser desfeita.

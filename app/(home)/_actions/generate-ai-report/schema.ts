@@ -5,7 +5,7 @@ import { z } from "zod";
 export const generateAiReportSchema = z.object({
   month: z.string().refine((value) => isMatch(value, "MM")),
   year: z.string().refine((value) => isMatch(value, "yyyy"), {
-    message: "O mês deve estar no formato MM (1 a 12)", // Mensagem de erro personalizada
+    message: "O ano deve estar no formato AAAA (ex: 2026)", // Mensagem de erro personalizada
   }),
 });
 

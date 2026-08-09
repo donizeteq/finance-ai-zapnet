@@ -1,0 +1,23 @@
+"use client";
+
+export default function Error({
+  reset,
+}: {
+  error: Error & { digest?: string };
+  reset: () => void;
+}) {
+  return (
+    <div className="flex h-full flex-col items-center justify-center gap-4 bg-background text-center text-foreground">
+      <h2 className="text-2xl font-bold">Algo deu errado</h2>
+      <p className="max-w-md text-sm text-muted-foreground">
+        Ocorreu um erro inesperado ao carregar esta página.
+      </p>
+      <button
+        onClick={reset}
+        className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:opacity-90"
+      >
+        Tentar novamente
+      </button>
+    </div>
+  );
+}

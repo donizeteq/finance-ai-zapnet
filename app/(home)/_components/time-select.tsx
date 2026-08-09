@@ -29,20 +29,23 @@ const YEAR_OPTIONS = Array.from({ length: 10 }, (_, i) => ({
   label: String(new Date().getFullYear() - i),
 }));
 
+const CURRENT_MONTH = String(new Date().getMonth() + 1);
+const CURRENT_YEAR = String(new Date().getFullYear());
+
 const TimeSelect = () => {
   const { push } = useRouter();
   const searchParams = useSearchParams();
-  const month = searchParams.get("month");
-  const year = searchParams.get("year");
+  const month = searchParams.get("month") || CURRENT_MONTH;
+  const year = searchParams.get("year") || CURRENT_YEAR;
 
   // Remove zero à esquerda para bater com os values do Select ("1"..."12")
-  const monthValue = month ? String(Number(month)) : "";
+  const monthValue = String(Number(month));
 
-  const handleMonthChange = (month: string) => {
-    push(`/?month=${month}&year=${year}`);
+  const handleMonthChange = (newMonth: string) => {
+    push(`/?month=${newMonth}&year=${year}`);
   };
-  const handleYearChange = (year: string) => {
-    push(`/?month=${month}&year=${year}`);
+  const handleYearChange = (newYear: string) => {
+    push(`/?month=${month}&year=${newYear}`);
   };
 
   return (
@@ -64,7 +67,7 @@ const TimeSelect = () => {
       </Select>
       <Select
         onValueChange={(value) => handleYearChange(value)}
-        value={year ?? ""}
+        value={year}
       >
         <SelectTrigger className="w-[100px] rounded-full">
           <SelectValue placeholder="Ano" />

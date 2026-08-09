@@ -69,7 +69,7 @@ const AiReportButton = ({
                 sobre suas finanças.
               </DialogDescription>
             </DialogHeader>
-            <ScrollArea className="prose max-h-[450px] text-white prose-h3:text-white prose-h4:text-white prose-strong:text-white">
+            <ScrollArea className="prose max-h-[60vh] text-white prose-h3:text-white prose-h4:text-white prose-strong:text-white">
               {report ? (
                 <Markdown>{report}</Markdown>
               ) : (

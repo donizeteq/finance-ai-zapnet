@@ -1,5 +1,7 @@
-import { auth, clerkClient } from "@clerk/nextjs/server";
+import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
+import { Suspense } from "react";
+import { getUserSubscriptionPlan } from "../_data/get-user-subscription-plan";
 import NavBar from "../_components/navbar";
 import SummaryCards from "./_components/summary-cards";
 import TimeSelect from "./_components/time-select";
@@ -10,6 +12,11 @@ import LastTransactions from "./_components/last-transactions";
 import { canUserAddTransaction } from "../_data/can-user-add-transaction";
 import AiReportButton from "./_components/ai-report-button";
 import { isMatch } from "date-fns";
+import {
+  SummaryCardsSkeleton,
+  ChartSkeleton,
+  LastTransactionsSkeleton,
+} from "./_components/dashboard-skeleton";
 
 interface HomeProps {
   searchParams: Promise<{
@@ -34,45 +41,64 @@ const Home = async ({ searchParams }: HomeProps) => {
   }
 
   // Buscando dados do dashboard em paralelo
-  const [dashboard, userCanAddTransaction, user] = await Promise.all([
+  const [dashboard, userCanAddTransaction, subscriptionPlan] = await Promise.all([
     getDashboard(month, year),
     canUserAddTransaction(),
-    (await clerkClient()).users.getUser(userId),
+    getUserSubscriptionPlan(userId),
   ]);
+
+  const isPremium = subscriptionPlan === "premium";
 
   return (
     <>
       <NavBar />
       <div className="flex h-full flex-col space-y-6 overflow-hidden p-6">
+        {isPremium && (
+          <div className="flex items-center justify-between rounded-lg border border-amber-500/30 bg-gradient-to-r from-amber-500/10 to-yellow-500/10 px-4 py-3">
+            <div className="flex items-center gap-2">
+              <span className="text-lg">👑</span>
+              <div>
+                <p className="text-sm font-bold text-amber-400">Você é Premium!</p>
+                <p className="text-xs text-muted-foreground">Transações ilimitadas e relatórios com IA liberados</p>
+              </div>
+            </div>
+          </div>
+        )}
         <div className="flex justify-between">
           <h1 className="text-2xl font-bold">Dashboard</h1>
           <div className="flex items-center gap-3">
             <AiReportButton
               month={month}
               year={year}
-              hasPremiumPlan={
-                user.publicMetadata.subscriptionPlan === "premium"
-              }
+              hasPremiumPlan={subscriptionPlan === "premium"}
             />
-            <TimeSelect />
+            <Suspense fallback={null}>
+              <TimeSelect />
+            </Suspense>
           </div>
         </div>
-        <div className="grid h-full grid-cols-[2fr,1fr] gap-6 overflow-hidden">
+        <div className="grid h-full grid-cols-1 gap-6 overflow-hidden md:grid-cols-[2fr,1fr]">
           <div className="flex flex-col gap-6 overflow-hidden">
-            <SummaryCards
-              month={month}
-              year={year}
-              {...dashboard}
-              userCanAddTransaction={userCanAddTransaction}
-            />
-            <div className="grid h-full grid-cols-3 grid-rows-1 gap-6 overflow-hidden">
-              <TransactionsPieChart {...dashboard} />
-              <ExpensesPerCategory
-                expensesPerCategory={dashboard.totalExpensePerCategory}
+            <Suspense fallback={<SummaryCardsSkeleton />}>
+              <SummaryCards
+                month={month}
+                year={year}
+                {...dashboard}
+                userCanAddTransaction={userCanAddTransaction}
               />
-            </div>
+            </Suspense>
+            <Suspense fallback={<ChartSkeleton />}>
+              <div className="grid h-full grid-cols-1 gap-6 overflow-hidden md:grid-cols-3">
+                <TransactionsPieChart {...dashboard} />
+                <ExpensesPerCategory
+                  expensesPerCategory={dashboard.totalExpensePerCategory}
+                />
+              </div>
+            </Suspense>
           </div>
-          <LastTransactions lastTransactions={dashboard.lastTransactions} />
+          <Suspense fallback={<LastTransactionsSkeleton />}>
+            <LastTransactions lastTransactions={dashboard.lastTransactions} />
+          </Suspense>
         </div>
       </div>
     </>

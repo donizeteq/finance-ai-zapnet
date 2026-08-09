@@ -1,1 +1,7 @@
+.next/
+out/
+node_modules/
+next-env.d.ts
+public/
+.husky/
 tailwind.config.ts

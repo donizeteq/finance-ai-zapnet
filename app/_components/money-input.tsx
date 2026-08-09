@@ -11,6 +11,7 @@ export const MoneyInput = forwardRef(
     return (
       <NumericFormat
         {...props}
+        inputMode="decimal"
         thousandSeparator="."
         decimalSeparator=","
         prefix="R$ "

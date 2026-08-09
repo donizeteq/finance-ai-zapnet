@@ -117,7 +117,11 @@ const UpsertTransactionDialog = ({
       );
     } catch (error) {
       console.error(error);
-      toast.error("Ocorreu um erro ao salvar. Tente novamente.");
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : "Ocorreu um erro ao salvar. Tente novamente.",
+      );
     } finally {
       setIsSubmitting(false);
     }
@@ -141,7 +145,7 @@ const UpsertTransactionDialog = ({
         </DialogHeader>
 
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <FormField
               control={form.control}
               name="name"
