@@ -29,7 +29,7 @@ export async function POST(req: Request) {
     where: { userId, date: { gte: start, lt: end } },
   });
 
-  const content = `Gere um relatório com insights sobre as minhas finanças... ${transactions
+  const content = `Gere um relatório curto (máximo 300 palavras) com insights sobre as minhas finanças, com dicas de como melhorar. Transações: ${transactions
     .map(
       (t) =>
         `${t.date.toLocaleDateString("pt-BR")}-R$${t.amount}-${t.type}-${t.category}`,
@@ -43,7 +43,7 @@ export async function POST(req: Request) {
       Authorization: `Bearer ${process.env.OPENAI_API_KEY || "omnirouter-proxy"}`,
     },
     body: JSON.stringify({
-      model: process.env.OPENAI_MODEL || "auto/best-chat",
+      model: process.env.OPENAI_MODEL || "auto/best-fast",
       stream: false,
       messages: [
         {
