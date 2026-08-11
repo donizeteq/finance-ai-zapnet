@@ -29,12 +29,18 @@ export async function POST(req: Request) {
     where: { userId, date: { gte: start, lt: end } },
   });
 
-  const txData = transactions
-    .map(
-      (t) =>
-        `${t.date.toLocaleDateString("pt-BR")}-R$${t.amount}-${t.type}-${t.category}`,
-    )
-    .join(";");
+  const txData = JSON.stringify(
+    transactions.map((t) => ({
+      data: t.date.toLocaleDateString("pt-BR"),
+      valor: `R$ ${t.amount}`,
+      tipo:
+        (t.type as string) === "INCOME" || (t.type as string) === "DEPOSIT"
+          ? "Receita"
+          : "Despesa",
+      categoria: t.category,
+      metodo: t.paymentMethod,
+    })),
+  );
 
   const response = await fetch(`${baseURL}/chat/completions`, {
     method: "POST",
