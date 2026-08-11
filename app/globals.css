@@ -81,10 +81,10 @@ body {
     @apply border-border;
   }
   html {
-    @apply h-full;
+    @apply min-h-screen;
   }
   body {
-    @apply h-full bg-background text-foreground;
+    @apply min-h-screen bg-background text-foreground;
   }
   @media (max-width: 768px) {
     body {

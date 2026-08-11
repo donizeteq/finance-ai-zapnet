@@ -13,7 +13,13 @@ export const metadata: Metadata = {
   title: "Finance AI | Gestão Financeira Inteligente",
   description:
     "Plataforma de gestão financeira com inteligência artificial para monitorar suas movimentações e oferecer insights personalizados.",
-  keywords: ["finanças", "gestão financeira", "IA", "investimentos", "despesas"],
+  keywords: [
+    "finanças",
+    "gestão financeira",
+    "IA",
+    "investimentos",
+    "despesas",
+  ],
   authors: [{ name: "Finance AI" }],
   openGraph: {
     title: "Finance AI | Gestão Financeira Inteligente",
@@ -46,7 +52,7 @@ export default function RootLayout({
             },
           }}
         >
-          <div className="flex h-full flex-col overflow-hidden">{children}</div>
+          <div className="flex min-h-screen flex-col">{children}</div>
         </ClerkProvider>
         <Toaster richColors position="top-right" />
       </body>
