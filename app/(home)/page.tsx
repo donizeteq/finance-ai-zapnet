@@ -54,7 +54,7 @@ const Home = async ({ searchParams }: HomeProps) => {
   return (
     <>
       <NavBar />
-      <div className="flex h-full flex-col space-y-6 overflow-hidden p-6">
+      <div className="flex flex-col space-y-6 p-6">
         {isPremium && (
           <div className="flex items-center justify-between rounded-lg border border-amber-500/30 bg-gradient-to-r from-amber-500/10 to-yellow-500/10 px-4 py-3">
             <div className="flex items-center gap-2">
@@ -79,8 +79,8 @@ const Home = async ({ searchParams }: HomeProps) => {
             </Suspense>
           </div>
         </div>
-        <div className="grid h-full grid-cols-1 gap-6 overflow-hidden md:grid-cols-[2fr,1fr]">
-          <div className="flex flex-col gap-6 overflow-hidden">
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-[2fr,1fr]">
+          <div className="flex flex-col gap-6">
             <Suspense fallback={<SummaryCardsSkeleton />}>
               <SummaryCards
                 month={month}
@@ -90,7 +90,7 @@ const Home = async ({ searchParams }: HomeProps) => {
               />
             </Suspense>
             <Suspense fallback={<ChartSkeleton />}>
-              <div className="grid h-full grid-cols-1 gap-6 overflow-hidden md:grid-cols-3">
+              <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                 <TransactionsPieChart {...dashboard} />
                 <ExpensesPerCategory
                   expensesPerCategory={dashboard.totalExpensePerCategory}
