@@ -43,11 +43,12 @@ const Home = async ({ searchParams }: HomeProps) => {
   }
 
   // Buscando dados do dashboard em paralelo
-  const [dashboard, userCanAddTransaction, subscriptionPlan] = await Promise.all([
-    getDashboard(month, year),
-    canUserAddTransaction(),
-    getUserSubscriptionPlan(userId),
-  ]);
+  const [dashboard, userCanAddTransaction, subscriptionPlan] =
+    await Promise.all([
+      getDashboard(month, year),
+      canUserAddTransaction(),
+      getUserSubscriptionPlan(userId),
+    ]);
 
   const isPremium = subscriptionPlan === "premium";
 
@@ -60,15 +61,19 @@ const Home = async ({ searchParams }: HomeProps) => {
             <div className="flex items-center gap-2">
               <span className="text-lg">👑</span>
               <div>
-                <p className="text-sm font-bold text-amber-400">Você é Premium!</p>
-                <p className="text-xs text-muted-foreground">Transações ilimitadas e relatórios com IA liberados</p>
+                <p className="text-sm font-bold text-amber-400">
+                  Você é Premium!
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  Transações ilimitadas e relatórios com IA liberados
+                </p>
               </div>
             </div>
           </div>
         )}
-        <div className="flex justify-between">
-          <h1 className="text-2xl font-bold">Dashboard</h1>
-          <div className="flex items-center gap-3">
+        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+          <h1 className="text-xl font-bold md:text-2xl">Dashboard</h1>
+          <div className="flex items-center gap-2 md:gap-3">
             <AiReportButton
               month={month}
               year={year}
