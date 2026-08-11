@@ -40,8 +40,10 @@ const AiReportButton = ({
       const aiReport = await generateAiReport({ month, year: year.toString() });
       setReport(aiReport);
     } catch (error) {
-      console.error("Erro ao gerar relatório:", error);
-      toast.error("Erro ao gerar relatório. Tente novamente mais tarde.");
+      console.error("Erro detalhado ao gerar relatório:", error);
+      toast.error(
+        `Erro: ${error instanceof Error ? error.message : "Erro desconhecido"}`,
+      );
     } finally {
       setReportIsLoading(false);
     }
@@ -73,8 +75,9 @@ const AiReportButton = ({
               {report ? (
                 <Markdown>{report}</Markdown>
               ) : (
-                <p className="text-center text-sm text-muted-foreground py-8">
-                  Clique em &quot;Gerar Relatório&quot; para analisar suas finanças com IA.
+                <p className="py-8 text-center text-sm text-muted-foreground">
+                  Clique em &quot;Gerar Relatório&quot; para analisar suas
+                  finanças com IA.
                 </p>
               )}
             </ScrollArea>
