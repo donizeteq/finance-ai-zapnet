@@ -24,25 +24,34 @@ export const transactionColumns: ColumnDef<Transaction>[] = [
   },
   {
     accessorKey: "category",
-    header: "Categoria",
-    cell: ({ row: { original: transaction } }) =>
-      TRANSACTION_CATEGORY_LABELS[transaction.category],
+    header: () => <span className="hidden md:inline">Categoria</span>,
+    cell: ({ row: { original: transaction } }) => (
+      <span className="hidden md:block">
+        {TRANSACTION_CATEGORY_LABELS[transaction.category]}
+      </span>
+    ),
   },
   {
     accessorKey: "paymentMethod",
-    header: "Método de Pagamento",
-    cell: ({ row: { original: transaction } }) =>
-      TRANSACTION_PAYMENT_METHOD_LABELS[transaction.paymentMethod],
+    header: () => <span className="hidden md:inline">Método de Pagamento</span>,
+    cell: ({ row: { original: transaction } }) => (
+      <span className="hidden md:block">
+        {TRANSACTION_PAYMENT_METHOD_LABELS[transaction.paymentMethod]}
+      </span>
+    ),
   },
   {
     accessorKey: "date",
-    header: "Data",
-    cell: ({ row: { original: transaction } }) =>
-      new Date(transaction.date).toLocaleDateString("pt-BR", {
-        day: "2-digit",
-        month: "long",
-        year: "numeric",
-      }),
+    header: () => <span className="hidden md:inline">Data</span>,
+    cell: ({ row: { original: transaction } }) => (
+      <span className="hidden md:block">
+        {new Date(transaction.date).toLocaleDateString("pt-BR", {
+          day: "2-digit",
+          month: "long",
+          year: "numeric",
+        })}
+      </span>
+    ),
   },
   {
     accessorKey: "amount",
