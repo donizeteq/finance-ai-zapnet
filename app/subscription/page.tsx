@@ -66,11 +66,15 @@ const SubscriptionPage = async () => {
             </CardContent>
           </Card>
           <Card className="w-full md:w-[450px]">
-            <CardHeader className="relative border-b border-solid py-8">
+            <CardHeader className="border-b border-solid py-8">
               {hasPremiumPlan && (
-                <Badge className="absolute left-4 top-12 bg-primary/10 text-primary">
-                  {isTrial ? `Trial ativo (${trialDaysLeft}d restantes)` : "Ativo"}
-                </Badge>
+                <div className="mb-4 flex justify-center">
+                  <Badge className="bg-primary/10 text-primary">
+                    {isTrial
+                      ? `Trial ativo (${trialDaysLeft}d restantes)`
+                      : "Ativo"}
+                  </Badge>
+                </div>
               )}
               <h2 className="text-center text-2xl font-semibold">
                 Plano Premium
