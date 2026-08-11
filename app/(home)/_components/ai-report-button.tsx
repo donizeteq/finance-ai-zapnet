@@ -12,7 +12,6 @@ import {
   DialogTrigger,
 } from "@/app/_components/ui/dialog";
 import { BotIcon, Loader2Icon } from "lucide-react";
-import { generateAiReport } from "../_actions/generate-ai-report";
 import { useState } from "react";
 import { ScrollArea } from "@/app/_components/ui/scroll-area";
 import Markdown from "react-markdown";
@@ -37,8 +36,19 @@ const AiReportButton = ({
   const handleGenerateReportClick = async () => {
     try {
       setReportIsLoading(true);
-      const aiReport = await generateAiReport({ month, year: year.toString() });
-      setReport(aiReport);
+      const res = await fetch("/api/ai-report", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ month, year: year.toString() }),
+      });
+
+      if (!res.ok) {
+        const errText = await res.text();
+        throw new Error(`Erro ${res.status}: ${errText}`);
+      }
+
+      const data = await res.json();
+      setReport(data.report);
     } catch (error) {
       console.error("Erro detalhado ao gerar relatório:", error);
       toast.error(
@@ -57,7 +67,8 @@ const AiReportButton = ({
     >
       <DialogTrigger asChild>
         <Button variant="ghost">
-          Relatório IA
+          <span className="hidden sm:inline">Relatório IA</span>
+          <span className="sm:hidden">IA</span>
           <BotIcon className="ml-2" size={16} />
         </Button>
       </DialogTrigger>
@@ -94,7 +105,7 @@ const AiReportButton = ({
                 {reportIsLoading ? (
                   <>
                     <Loader2Icon className="mr-2 animate-spin" size={16} />
-                    Gerando...
+                    Gerando... (pode levar até 30s)
                   </>
                 ) : (
                   "Gerar Relatório"

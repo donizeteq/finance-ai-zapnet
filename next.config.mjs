@@ -1,5 +1,8 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // Timeout máximo para Server Actions e funções serverless (Vercel)
+  maxDuration: 60,
+
   // Configurações de segurança
   poweredByHeader: false, // Remove o header X-Powered-By
   compress: true, // Compressão gzip
