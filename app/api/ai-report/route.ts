@@ -44,6 +44,7 @@ export async function POST(req: Request) {
     },
     body: JSON.stringify({
       model: process.env.OPENAI_MODEL || "auto/best-chat",
+      stream: false, // GARANTIR QUE NÃO ESTÁ EM STREAMING
       messages: [
         {
           role: "system",
@@ -55,9 +56,21 @@ export async function POST(req: Request) {
   });
 
   if (!response.ok) {
+    const errorText = await response.text();
+    console.error("API IA Error:", errorText);
     return new NextResponse("Erro na API de IA", { status: 500 });
   }
 
-  const data = await response.json();
-  return NextResponse.json({ report: data.choices[0].message.content });
+  // O OmniRouter está retornando um stream em algumas situações,
+  // mesmo que stream: false tenha sido solicitado.
+  // Vamos ler o texto puro e tratar como string, não como JSON se necessário.
+  const text = await response.text();
+
+  try {
+    const data = JSON.parse(text);
+    return NextResponse.json({ report: data.choices[0].message.content });
+  } catch (e) {
+    // Se falhar ao parsear como JSON, assumimos que é o conteúdo direto ou erro de formato
+    return NextResponse.json({ report: text });
+  }
 }
