@@ -4,7 +4,7 @@ import { db } from "@/app/_lib/prisma";
 import { getMonthRange } from "@/app/_utils/month-range";
 import { getUserSubscriptionPlan } from "@/app/_data/get-user-subscription-plan";
 
-export const maxDuration = 60; // Aumenta para 60s
+export const maxDuration = 60;
 
 export async function POST(req: Request) {
   const { userId } = await auth();
@@ -29,28 +29,34 @@ export async function POST(req: Request) {
     where: { userId, date: { gte: start, lt: end } },
   });
 
-  const content = `Gere um relatório curto (máximo 300 palavras) com insights sobre as minhas finanças, com dicas de como melhorar. Transações: ${transactions
+  const txData = transactions
     .map(
       (t) =>
         `${t.date.toLocaleDateString("pt-BR")}-R$${t.amount}-${t.type}-${t.category}`,
     )
-    .join(";")}`;
+    .join(";");
 
   const response = await fetch(`${baseURL}/chat/completions`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
+      Accept: "application/json",
       Authorization: `Bearer ${process.env.OPENAI_API_KEY || "omnirouter-proxy"}`,
     },
     body: JSON.stringify({
       model: process.env.OPENAI_MODEL || "auto/best-fast",
       stream: false,
+      max_tokens: 500,
       messages: [
         {
           role: "system",
-          content: "Você é um especialista em finanças pessoais.",
+          content:
+            "Você é um consultor financeiro. Gere relatórios curtos e objetivos.",
         },
-        { role: "user", content },
+        {
+          role: "user",
+          content: `Gere um relatório curto (máx 300 palavras) com insights sobre minhas finanças. Transações: ${txData}`,
+        },
       ],
     }),
   });
@@ -63,28 +69,32 @@ export async function POST(req: Request) {
 
   const text = await response.text();
 
-  // Tratamento robusto: se for stream, parseia as linhas 'data:'
+  // Se for stream (data: ...), parseia linha por linha
   if (text.startsWith("data:")) {
     let fullContent = "";
     const lines = text.split("\n");
     for (const line of lines) {
-      if (line.startsWith("data: ") && line !== "data: [DONE]") {
+      if (line.startsWith("data: ") && !line.includes("[DONE]")) {
         try {
           const json = JSON.parse(line.substring(6));
-          const content =
-            json.choices[0].delta?.content || json.choices[0].message?.content;
-          if (content) fullContent += content;
-        } catch (e) {}
+          const c =
+            json.choices?.[0]?.delta?.content ||
+            json.choices?.[0]?.message?.content;
+          if (c) fullContent += c;
+        } catch {}
       }
     }
-    return NextResponse.json({ report: fullContent });
+    if (fullContent) {
+      return NextResponse.json({ report: fullContent });
+    }
+    return new NextResponse("Resposta vazia da IA", { status: 500 });
   }
 
-  // Se não for stream, tenta tratar como JSON direto
+  // JSON puro
   try {
     const data = JSON.parse(text);
     return NextResponse.json({ report: data.choices[0].message.content });
-  } catch (e) {
+  } catch {
     return NextResponse.json({ report: text });
   }
 }
