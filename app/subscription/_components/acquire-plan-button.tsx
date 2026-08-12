@@ -13,19 +13,42 @@ import { useUser } from "@clerk/nextjs";
 import Link from "next/link";
 import { toast } from "sonner";
 import { useState } from "react";
-import { Loader2Icon, CreditCardIcon, LandmarkIcon, SmartphoneIcon, ExternalLinkIcon } from "lucide-react";
+import {
+  Loader2Icon,
+  CreditCardIcon,
+  LandmarkIcon,
+  SmartphoneIcon,
+  ExternalLinkIcon,
+} from "lucide-react";
 import type { BillingType } from "@/app/_lib/asaas";
 
-const PAYMENT_OPTIONS: { value: BillingType; label: string; icon: React.ReactNode }[] = [
-  { value: "CREDIT_CARD", label: "Cartão de Crédito", icon: <CreditCardIcon className="mr-2 h-4 w-4" /> },
-  { value: "PIX", label: "PIX", icon: <SmartphoneIcon className="mr-2 h-4 w-4" /> },
-  { value: "BOLETO", label: "Boleto Bancário", icon: <LandmarkIcon className="mr-2 h-4 w-4" /> },
+const PAYMENT_OPTIONS: {
+  value: BillingType;
+  label: string;
+  icon: React.ReactNode;
+}[] = [
+  {
+    value: "CREDIT_CARD",
+    label: "Cartão de Crédito",
+    icon: <CreditCardIcon className="mr-2 h-4 w-4" />,
+  },
+  {
+    value: "PIX",
+    label: "PIX",
+    icon: <SmartphoneIcon className="mr-2 h-4 w-4" />,
+  },
+  {
+    value: "BOLETO",
+    label: "Boleto Bancário",
+    icon: <LandmarkIcon className="mr-2 h-4 w-4" />,
+  },
 ];
 
 const AcquirePlanButton = () => {
   const { user } = useUser();
   const [isLoading, setIsLoading] = useState(false);
-  const [selectedBillingType, setSelectedBillingType] = useState<BillingType | null>(null);
+  const [selectedBillingType, setSelectedBillingType] =
+    useState<BillingType | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [paymentUrl, setPaymentUrl] = useState<string | null>(null);
 
@@ -46,9 +69,9 @@ const AcquirePlanButton = () => {
       }
       setPaymentUrl(paymentUrl);
     } catch (error) {
-      console.error(error);
+      console.error("Erro ao criar assinatura:", error);
       toast.error(
-        "Não foi possível iniciar a assinatura. Verifique se o Asaas está configurado.",
+        `Erro: ${error instanceof Error ? error.message : "Não foi possível iniciar a assinatura."}`,
       );
     } finally {
       setIsLoading(false);
@@ -58,7 +81,7 @@ const AcquirePlanButton = () => {
   const metadata = user?.publicMetadata ?? {};
   const isPremiumActive = metadata.subscriptionPlan === "premium";
   const isTrial = metadata.premiumSource === "trial";
-  
+
   const showManagePlan = isPremiumActive && !isTrial;
   if (showManagePlan) {
     return (
@@ -86,27 +109,34 @@ const AcquirePlanButton = () => {
             {paymentUrl ? "Pagamento Pronto" : "Escolha o meio de pagamento"}
           </DialogTitle>
           <DialogDescription>
-            {paymentUrl 
+            {paymentUrl
               ? "Clique no botão abaixo para realizar o pagamento com segurança."
-              : "A assinatura mensal é de R$19,90 e você pode escolher como deseja pagar."
-            }
+              : "A assinatura mensal é de R$19,90 e você pode escolher como deseja pagar."}
           </DialogDescription>
         </DialogHeader>
 
         {paymentUrl ? (
           <div className="flex flex-col gap-4 py-4">
-             <Button asChild className="w-full rounded-full font-bold py-6 text-lg">
-               <a href={paymentUrl} target="_blank" rel="noopener noreferrer">
-                 <ExternalLinkIcon className="mr-2 h-5 w-5" />
-                 Abrir Página de Pagamento
-               </a>
-             </Button>
-             <p className="text-xs text-center text-muted-foreground">
-               Após concluir o pagamento, sua conta será atualizada automaticamente.
-             </p>
-             <Button variant="outline" className="rounded-full" onClick={() => handleDialogChange(false)}>
-               Fechar
-             </Button>
+            <Button
+              asChild
+              className="w-full rounded-full py-6 text-lg font-bold"
+            >
+              <a href={paymentUrl} target="_blank" rel="noopener noreferrer">
+                <ExternalLinkIcon className="mr-2 h-5 w-5" />
+                Abrir Página de Pagamento
+              </a>
+            </Button>
+            <p className="text-center text-xs text-muted-foreground">
+              Após concluir o pagamento, sua conta será atualizada
+              automaticamente.
+            </p>
+            <Button
+              variant="outline"
+              className="rounded-full"
+              onClick={() => handleDialogChange(false)}
+            >
+              Fechar
+            </Button>
           </div>
         ) : (
           <div className="flex flex-col gap-3">

@@ -46,8 +46,8 @@ const GeneratePdf = ({ report }: GeneratePdfProps) => {
       doc.setTextColor(40, 40, 40);
       let y = 110;
 
-      // Divide o relatorio em paragrafos (separados por \n ou duplo espaco)
-      const paragraphs = report.split(/\n+/);
+      // Divide o relatorio em paragrafos (separados por \n ou quebras reais)
+      const paragraphs = report.split(/\r?\n/);
 
       for (const para of paragraphs) {
         const cleanPara = para.trim();

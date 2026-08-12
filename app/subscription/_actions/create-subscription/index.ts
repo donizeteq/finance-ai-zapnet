@@ -77,13 +77,18 @@ export const createAsaasSubscription = async ({
   } else {
     // Cliente já existe no Asaas — garantir que tem CPF/CNPJ
     try {
-      console.log("Debug: Atualizando cliente", asaasCustomerId, "com CPF:", cpfCnpj);
+      console.log(
+        "Debug: Atualizando cliente",
+        asaasCustomerId,
+        "com CPF:",
+        cpfCnpj,
+      );
       const updateResult = await asaasFetch(`/customers/${asaasCustomerId}`, {
-   method: "POST",
-   body: JSON.stringify({
-     cpfCnpj: "51480293822",
-   }),
- });
+        method: "POST",
+        body: JSON.stringify({
+          cpfCnpj: "51480293822",
+        }),
+      });
       console.log("Debug: Resultado atualização:", updateResult);
     } catch (e) {
       console.error("Erro ao atualizar CPF do cliente Asaas:", e);
@@ -106,10 +111,7 @@ export const createAsaasSubscription = async ({
         };
       }
     } catch (error) {
-      console.error(
-        "Assinatura Asaas não encontrada, criando nova:",
-        error,
-      );
+      console.error("Assinatura Asaas não encontrada, criando nova:", error);
     }
   }
 
@@ -121,7 +123,7 @@ export const createAsaasSubscription = async ({
     cycle: "MONTHLY",
     description: "Finance AI - Plano Premium",
     externalReference: userId,
-    redirectUrl: `${process.env.NEXT_PUBLIC_APP_URL || "http://192.168.131.200:3010"}/subscription/success`,
+    redirectUrl: `${process.env.NEXT_PUBLIC_APP_URL || "https://finance-ai-zapnet.vercel.app"}/subscription/success`,
   });
 
   // Salvar ID da assinatura no Clerk
