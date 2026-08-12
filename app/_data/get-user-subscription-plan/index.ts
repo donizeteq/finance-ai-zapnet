@@ -35,25 +35,29 @@ export const getUserSubscriptionPlan = async (
     new Date(),
   );
 
-  // Persiste a mutação (se houver) usando spread para preservar demais chaves.
+  // Persiste a mutação (se houver) — falha nao derruba a pagina
   if (mutation.type !== "none") {
-    const nextMetadata = { ...metadata };
+    try {
+      const nextMetadata = { ...metadata };
 
-    if (mutation.type === "grant-trial") {
-      nextMetadata.premiumUntil = mutation.premiumUntil.toISOString();
-      nextMetadata.subscriptionPlan = "premium";
-      nextMetadata.premiumSource = "trial";
-    } else if (mutation.type === "migrate-legacy") {
-      nextMetadata.premiumUntil = mutation.premiumUntil.toISOString();
-      nextMetadata.premiumSource = "paid";
-    } else if (mutation.type === "clear-expired") {
-      nextMetadata.premiumUntil = null;
-      nextMetadata.subscriptionPlan = null;
+      if (mutation.type === "grant-trial") {
+        nextMetadata.premiumUntil = mutation.premiumUntil.toISOString();
+        nextMetadata.subscriptionPlan = "premium";
+        nextMetadata.premiumSource = "trial";
+      } else if (mutation.type === "migrate-legacy") {
+        nextMetadata.premiumUntil = mutation.premiumUntil.toISOString();
+        nextMetadata.premiumSource = "paid";
+      } else if (mutation.type === "clear-expired") {
+        nextMetadata.premiumUntil = null;
+        nextMetadata.subscriptionPlan = null;
+      }
+
+      await client.users.updateUser(userId, {
+        publicMetadata: nextMetadata,
+      });
+    } catch (e) {
+      console.error("Erro ao persistir mutacao de plano:", e);
     }
-
-    await client.users.updateUser(userId, {
-      publicMetadata: nextMetadata,
-    });
   }
 
   return resolution.plan;

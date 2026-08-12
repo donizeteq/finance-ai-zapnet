@@ -18,17 +18,28 @@ const SubscriptionPage = async () => {
     redirect("/login");
   }
 
+  // Defaults — sempre renderiza a pagina mesmo se tudo falhar
   let subscriptionPlan: string = "free";
   let isTrial = false;
   let trialDaysLeft = 0;
   let currentMonthTransactions = 0;
 
+  // Bloco 1: transacoes do mes (Prisma) — falha silenciosa
   try {
-    [subscriptionPlan, currentMonthTransactions] = await Promise.all([
-      getUserSubscriptionPlan(userId).catch(() => "free" as const),
-      getCurrentMonthTransactions().catch(() => 0),
-    ]);
+    currentMonthTransactions = await getCurrentMonthTransactions();
+  } catch (e) {
+    console.error("Erro ao buscar transacoes:", e);
+  }
 
+  // Bloco 2: plano do usuario (Clerk + mutate) — falha silenciosa
+  try {
+    subscriptionPlan = await getUserSubscriptionPlan(userId);
+  } catch (e) {
+    console.error("Erro ao resolver plano:", e);
+  }
+
+  // Bloco 3: dados de trial do Clerk — falha silenciosa
+  try {
     const client = await clerkClient();
     const user = await client.users.getUser(userId);
     const premiumSource = user.publicMetadata.premiumSource;
@@ -41,8 +52,8 @@ const SubscriptionPage = async () => {
       isTrial && premiumUntil
         ? Math.max(0, differenceInCalendarDays(premiumUntil, new Date()))
         : 0;
-  } catch (error) {
-    console.error("Erro ao carregar dados de assinatura:", error);
+  } catch (e) {
+    console.error("Erro ao ler metadata Clerk:", e);
   }
 
   const hasPremiumPlan = subscriptionPlan === "premium";
@@ -57,24 +68,24 @@ const SubscriptionPage = async () => {
           <Card className="w-full md:w-[450px]">
             <CardHeader className="border-b border-solid py-8">
               <h2 className="text-center text-2xl font-semibold">
-                Plano Básico
+                Plano Basico
               </h2>
               <div className="flex items-center justify-center gap-3">
                 <span className="text-4xl">R$</span>
                 <span className="text-6xl font-semibold">0</span>
-                <span className="text-2xl text-muted-foreground">mês</span>
+                <span className="text-2xl text-muted-foreground">mes</span>
               </div>
             </CardHeader>
             <CardContent className="space-y-6 py-8">
               <div className="flex items-center gap-2">
                 <CheckIcon className="text-primary" />
                 <p>
-                  Apenas 10 transações por mês ({currentMonthTransactions}/10)
+                  Apenas 10 transacoes por mes ({currentMonthTransactions}/10)
                 </p>
               </div>
               <div className="flex items-center gap-2">
                 <XIcon />
-                <p>Relatórios de IA</p>
+                <p>Relatorios de IA</p>
               </div>
             </CardContent>
           </Card>
@@ -95,21 +106,21 @@ const SubscriptionPage = async () => {
               <div className="flex items-center justify-center gap-3">
                 <span className="text-4xl">R$</span>
                 <span className="text-6xl font-semibold">19,90</span>
-                <span className="text-2xl text-muted-foreground">mês</span>
+                <span className="text-2xl text-muted-foreground">mes</span>
               </div>
             </CardHeader>
             <CardContent className="space-y-6 py-8">
               <div className="flex items-center gap-2">
                 <CheckIcon className="text-primary" />
-                <p>Transações Ilimitadas</p>
+                <p>Transacoes Ilimitadas</p>
               </div>
               <div className="flex items-center gap-2">
                 <CheckIcon className="text-primary" />
-                <p>Relatórios de IA</p>
+                <p>Relatorios de IA</p>
               </div>
               {!hasPremiumPlan && (
                 <p className="text-center text-sm text-muted-foreground">
-                  Teste grátis por {PREMIUM_PLAN_TRIAL_DAYS} dias, sem cartão
+                  Teste gratis por {PREMIUM_PLAN_TRIAL_DAYS} dias, sem cartao
                 </p>
               )}
               <AcquirePlanButton />
