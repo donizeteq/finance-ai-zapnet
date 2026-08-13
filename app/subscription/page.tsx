@@ -13,123 +13,133 @@ import { PREMIUM_PLAN_TRIAL_DAYS } from "../_constants/subscription";
 export const dynamic = "force-dynamic";
 
 const SubscriptionPage = async () => {
-  const { userId } = await auth();
-  if (!userId) {
-    redirect("/login");
-  }
-
-  // Defaults — sempre renderiza a pagina mesmo se tudo falhar
-  let subscriptionPlan: string = "free";
-  let isTrial = false;
-  let trialDaysLeft = 0;
-  let currentMonthTransactions = 0;
-
-  // Bloco 1: transacoes do mes (Prisma) — falha silenciosa
   try {
-    currentMonthTransactions = await getCurrentMonthTransactions();
-  } catch (e) {
-    console.error("Erro ao buscar transacoes:", e);
-  }
+    const { userId } = await auth();
+    if (!userId) {
+      redirect("/login");
+    }
 
-  // Bloco 2: plano do usuario (Clerk + mutate) — falha silenciosa
-  try {
-    subscriptionPlan = await getUserSubscriptionPlan(userId);
-  } catch (e) {
-    console.error("Erro ao resolver plano:", e);
-  }
+    // Defaults — sempre renderiza a pagina mesmo se tudo falhar
+    let subscriptionPlan: string = "free";
+    let isTrial = false;
+    let trialDaysLeft = 0;
+    let currentMonthTransactions = 0;
 
-  // Bloco 3: dados de trial do Clerk — falha silenciosa
-  try {
-    const client = await clerkClient();
-    const user = await client.users.getUser(userId);
-    const premiumSource = user.publicMetadata.premiumSource;
-    isTrial = premiumSource === "trial";
-    const premiumUntil =
-      typeof user.publicMetadata.premiumUntil === "string"
-        ? new Date(user.publicMetadata.premiumUntil)
-        : null;
-    trialDaysLeft =
-      isTrial && premiumUntil
-        ? Math.max(0, differenceInCalendarDays(premiumUntil, new Date()))
-        : 0;
-  } catch (e) {
-    console.error("Erro ao ler metadata Clerk:", e);
-  }
+    // Bloco 1: transacoes do mes (Prisma) — falha silenciosa
+    try {
+      currentMonthTransactions = await getCurrentMonthTransactions();
+    } catch (e) {
+      console.error("Erro ao buscar transacoes:", e);
+    }
 
-  const hasPremiumPlan = subscriptionPlan === "premium";
+    // Bloco 2: plano do usuario (Clerk + mutate) — falha silenciosa
+    try {
+      subscriptionPlan = await getUserSubscriptionPlan(userId);
+    } catch (e) {
+      console.error("Erro ao resolver plano:", e);
+    }
 
-  return (
-    <>
-      <NavBar />
-      <div className="space-y-6 p-6">
-        <h1 className="text-2xl font-bold">Assinatura</h1>
+    // Bloco 3: dados de trial do Clerk — falha silenciosa
+    try {
+      const client = await clerkClient();
+      const user = await client.users.getUser(userId);
+      const premiumSource = user.publicMetadata.premiumSource;
+      isTrial = premiumSource === "trial";
+      const premiumUntil =
+        typeof user.publicMetadata.premiumUntil === "string"
+          ? new Date(user.publicMetadata.premiumUntil)
+          : null;
+      trialDaysLeft =
+        isTrial && premiumUntil
+          ? Math.max(0, differenceInCalendarDays(premiumUntil, new Date()))
+          : 0;
+    } catch (e) {
+      console.error("Erro ao ler metadata Clerk:", e);
+    }
 
-        <div className="flex flex-col gap-4 md:flex-row md:gap-6">
-          <Card className="w-full md:w-[450px]">
-            <CardHeader className="border-b border-solid py-8">
-              <h2 className="text-center text-2xl font-semibold">
-                Plano Basico
-              </h2>
-              <div className="flex items-center justify-center gap-3">
-                <span className="text-4xl">R$</span>
-                <span className="text-6xl font-semibold">0</span>
-                <span className="text-2xl text-muted-foreground">mes</span>
-              </div>
-            </CardHeader>
-            <CardContent className="space-y-6 py-8">
-              <div className="flex items-center gap-2">
-                <CheckIcon className="text-primary" />
-                <p>
-                  Apenas 10 transacoes por mes ({currentMonthTransactions}/10)
-                </p>
-              </div>
-              <div className="flex items-center gap-2">
-                <XIcon />
-                <p>Relatorios de IA</p>
-              </div>
-            </CardContent>
-          </Card>
-          <Card className="w-full md:w-[450px]">
-            <CardHeader className="border-b border-solid py-8">
-              {hasPremiumPlan && (
-                <div className="mb-4 flex justify-center">
-                  <Badge className="bg-primary/10 text-primary">
-                    {isTrial
-                      ? `Trial ativo (${trialDaysLeft}d restantes)`
-                      : "Ativo"}
-                  </Badge>
+    const hasPremiumPlan = subscriptionPlan === "premium";
+
+    return (
+      <>
+        <NavBar />
+        <div className="space-y-6 p-6">
+          <h1 className="text-2xl font-bold">Assinatura</h1>
+
+          <div className="flex flex-col gap-4 md:flex-row md:gap-6">
+            <Card className="w-full md:w-[450px]">
+              <CardHeader className="border-b border-solid py-8">
+                <h2 className="text-center text-2xl font-semibold">
+                  Plano Basico
+                </h2>
+                <div className="flex items-center justify-center gap-3">
+                  <span className="text-4xl">R$</span>
+                  <span className="text-6xl font-semibold">0</span>
+                  <span className="text-2xl text-muted-foreground">mes</span>
                 </div>
-              )}
-              <h2 className="text-center text-2xl font-semibold">
-                Plano Premium
-              </h2>
-              <div className="flex items-center justify-center gap-3">
-                <span className="text-4xl">R$</span>
-                <span className="text-6xl font-semibold">19,90</span>
-                <span className="text-2xl text-muted-foreground">mes</span>
-              </div>
-            </CardHeader>
-            <CardContent className="space-y-6 py-8">
-              <div className="flex items-center gap-2">
-                <CheckIcon className="text-primary" />
-                <p>Transacoes Ilimitadas</p>
-              </div>
-              <div className="flex items-center gap-2">
-                <CheckIcon className="text-primary" />
-                <p>Relatorios de IA</p>
-              </div>
-              {!hasPremiumPlan && (
-                <p className="text-center text-sm text-muted-foreground">
-                  Teste gratis por {PREMIUM_PLAN_TRIAL_DAYS} dias, sem cartao
-                </p>
-              )}
-              <AcquirePlanButton />
-            </CardContent>
-          </Card>
+              </CardHeader>
+              <CardContent className="space-y-6 py-8">
+                <div className="flex items-center gap-2">
+                  <CheckIcon className="text-primary" />
+                  <p>
+                    Apenas 10 transacoes por mes ({currentMonthTransactions}/10)
+                  </p>
+                </div>
+                <div className="flex items-center gap-2">
+                  <XIcon />
+                  <p>Relatorios de IA</p>
+                </div>
+              </CardContent>
+            </Card>
+            <Card className="w-full md:w-[450px]">
+              <CardHeader className="border-b border-solid py-8">
+                {hasPremiumPlan && (
+                  <div className="mb-4 flex justify-center">
+                    <Badge className="bg-primary/10 text-primary">
+                      {isTrial
+                        ? `Trial ativo (${trialDaysLeft}d restantes)`
+                        : "Ativo"}
+                    </Badge>
+                  </div>
+                )}
+                <h2 className="text-center text-2xl font-semibold">
+                  Plano Premium
+                </h2>
+                <div className="flex items-center justify-center gap-3">
+                  <span className="text-4xl">R$</span>
+                  <span className="text-6xl font-semibold">19,90</span>
+                  <span className="text-2xl text-muted-foreground">mes</span>
+                </div>
+              </CardHeader>
+              <CardContent className="space-y-6 py-8">
+                <div className="flex items-center gap-2">
+                  <CheckIcon className="text-primary" />
+                  <p>Transacoes Ilimitadas</p>
+                </div>
+                <div className="flex items-center gap-2">
+                  <CheckIcon className="text-primary" />
+                  <p>Relatorios de IA</p>
+                </div>
+                {!hasPremiumPlan && (
+                  <p className="text-center text-sm text-muted-foreground">
+                    Teste gratis por {PREMIUM_PLAN_TRIAL_DAYS} dias, sem cartao
+                  </p>
+                )}
+                <AcquirePlanButton />
+              </CardContent>
+            </Card>
+          </div>
         </div>
+      </>
+    );
+  } catch (err) {
+    console.error("Erro crítico na renderização da página:", err);
+    return (
+      <div className="p-10 text-center">
+        <h1 className="text-xl font-bold">Erro ao carregar página</h1>
+        <p>Por favor, tente novamente mais tarde.</p>
       </div>
-    </>
-  );
+    );
+  }
 };
 
 export default SubscriptionPage;
