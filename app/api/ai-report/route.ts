@@ -75,8 +75,18 @@ export async function POST(req: Request) {
 
   const text = await response.text();
 
+  // Tenta parsear JSON direto primeiro
+  try {
+    const json = JSON.parse(text);
+    if (json.choices && json.choices[0] && json.choices[0].message) {
+      return NextResponse.json({ report: json.choices[0].message.content });
+    }
+  } catch (e) {
+    // Se não for JSON, continua para tentar parsear como stream
+  }
+
   // Se for stream (data: ...), parseia linha por linha
-  if (text.startsWith("data:")) {
+  if (text.includes("data:")) {
     let fullContent = "";
     const lines = text.split("\n");
     for (const line of lines) {
@@ -93,14 +103,7 @@ export async function POST(req: Request) {
     if (fullContent) {
       return NextResponse.json({ report: fullContent });
     }
-    return new NextResponse("Resposta vazia da IA", { status: 500 });
   }
 
-  // JSON puro
-  try {
-    const data = JSON.parse(text);
-    return NextResponse.json({ report: data.choices[0].message.content });
-  } catch {
-    return NextResponse.json({ report: text });
-  }
+  return NextResponse.json({ report: text || "Resposta vazia da IA" });
 }

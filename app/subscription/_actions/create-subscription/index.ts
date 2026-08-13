@@ -115,28 +115,35 @@ export const createAsaasSubscription = async ({
     }
   }
 
-  // Criar assinatura recorrente (externalReference = clerkUserId para lookup no webhook)
-  const subscription = await createSubscription({
-    customer: asaasCustomerId,
-    billingType: billingType as BillingType,
-    value: PREMIUM_PLAN_PRICE,
-    cycle: "MONTHLY",
-    description: "Finance AI - Plano Premium",
-    externalReference: userId,
-    redirectUrl: `${process.env.NEXT_PUBLIC_APP_URL || "https://finance-ai-zapnet.vercel.app"}/subscription/success`,
-  });
+  try {
+    // Criar assinatura recorrente (externalReference = clerkUserId para lookup no webhook)
+    const subscription = await createSubscription({
+      customer: asaasCustomerId,
+      billingType: billingType as BillingType,
+      value: 19.9,
+      cycle: "MONTHLY",
+      description: "Finance AI - Plano Premium",
+      externalReference: userId,
+      redirectUrl: `${process.env.NEXT_PUBLIC_APP_URL || "https://finance-ai-zapnet.vercel.app"}/subscription/success`,
+    });
 
-  // Salvar ID da assinatura no Clerk
-  await client.users.updateUser(userId, {
-    privateMetadata: {
-      ...user.privateMetadata,
-      asaasCustomerId,
-      asaasSubscriptionId: subscription.id,
-    },
-  });
+    // Salvar ID da assinatura no Clerk
+    await client.users.updateUser(userId, {
+      privateMetadata: {
+        ...user.privateMetadata,
+        asaasCustomerId,
+        asaasSubscriptionId: subscription.id,
+      },
+    });
 
-  return {
-    subscriptionId: subscription.id,
-    paymentUrl: subscription.paymentUrl,
-  };
+    return {
+      subscriptionId: subscription.id,
+      paymentUrl: subscription.paymentUrl || "",
+    };
+  } catch (error) {
+    console.error("Erro crítico ao criar assinatura Asaas:", error);
+    throw new Error(
+      `Falha ao comunicar com Asaas: ${error instanceof Error ? error.message : "Erro desconhecido"}`,
+    );
+  }
 };
