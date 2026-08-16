@@ -28,9 +28,18 @@ const NavBarInner = () => {
 
       {/* Desktop Links */}
       <div className="hidden items-center gap-10 md:flex">
-        <Link href="/" className={linkClass("/")}>Dashboard</Link>
-        <Link href="/transactions" className={linkClass("/transactions")}>Transações</Link>
-        <Link href="/subscription" className={linkClass("/subscription")}>Assinatura</Link>
+        <Link href="/" className={linkClass("/")}>
+          Dashboard
+        </Link>
+        <Link href="/transactions" className={linkClass("/transactions")}>
+          Transações
+        </Link>
+        <Link href="/auditoria" className={linkClass("/auditoria")}>
+          Auditoria DRE
+        </Link>
+        <Link href="/subscription" className={linkClass("/subscription")}>
+          Assinatura
+        </Link>
         {isPremium && (
           <span className="flex items-center gap-1 rounded-full bg-gradient-to-r from-amber-500 to-yellow-500 px-3 py-1 text-xs font-bold text-black">
             <CrownIcon className="h-3 w-3" />
@@ -50,9 +59,30 @@ const NavBarInner = () => {
       {/* Mobile Menu Overlay */}
       {isOpen && (
         <div className="absolute left-0 top-16 z-50 flex w-full flex-col gap-4 border-b bg-background p-6 md:hidden">
-          <Link href="/" className={linkClass("/")} onClick={toggleMenu}>Dashboard</Link>
-          <Link href="/transactions" className={linkClass("/transactions")} onClick={toggleMenu}>Transações</Link>
-          <Link href="/subscription" className={linkClass("/subscription")} onClick={toggleMenu}>Assinatura</Link>
+          <Link href="/" className={linkClass("/")} onClick={toggleMenu}>
+            Dashboard
+          </Link>
+          <Link
+            href="/transactions"
+            className={linkClass("/transactions")}
+            onClick={toggleMenu}
+          >
+            Transações
+          </Link>
+          <Link
+            href="/auditoria"
+            className={linkClass("/auditoria")}
+            onClick={toggleMenu}
+          >
+            Auditoria DRE
+          </Link>
+          <Link
+            href="/subscription"
+            className={linkClass("/subscription")}
+            onClick={toggleMenu}
+          >
+            Assinatura
+          </Link>
           {isPremium && (
             <span className="flex w-fit items-center gap-1 rounded-full bg-gradient-to-r from-amber-500 to-yellow-500 px-3 py-1 text-xs font-bold text-black">
               <CrownIcon className="h-3 w-3" />

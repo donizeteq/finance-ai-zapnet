@@ -49,12 +49,12 @@ const TimeSelect = () => {
   };
 
   return (
-    <div className="flex gap-2">
+    <div className="flex w-full flex-col gap-2 sm:flex-row">
       <Select
         onValueChange={(value) => handleMonthChange(value)}
         value={monthValue}
       >
-        <SelectTrigger className="w-[150px] rounded-full">
+        <SelectTrigger className="w-full rounded-full sm:w-[130px]">
           <SelectValue placeholder="Mês" />
         </SelectTrigger>
         <SelectContent>
@@ -65,11 +65,8 @@ const TimeSelect = () => {
           ))}
         </SelectContent>
       </Select>
-      <Select
-        onValueChange={(value) => handleYearChange(value)}
-        value={year}
-      >
-        <SelectTrigger className="w-[100px] rounded-full">
+      <Select onValueChange={(value) => handleYearChange(value)} value={year}>
+        <SelectTrigger className="w-full rounded-full sm:w-[95px]">
           <SelectValue placeholder="Ano" />
         </SelectTrigger>
         <SelectContent>

@@ -16,17 +16,51 @@ export const TRANSACTION_PAYMENT_METHOD_ICONS = {
   [TransactionPaymentMethod.OTHER]: "other.svg",
 };
 
-export const TRANSACTION_CATEGORY_LABELS = {
+export const TRANSACTION_CATEGORY_LABELS: Record<string, string> = {
   EDUCATION: "Educação",
   ENTERTAINMENT: "Entretenimento",
   FOOD: "Alimentação",
   HOUSING: "Moradia",
   HEALTH: "Saúde",
-  TRANSPORTATION: "Transporte",
   OTHER: "Outros",
   SALARY: "Salário",
   UTILITY: "Utilidade",
+  PRO_LABORE: "Pró-Labore",
+  FATURAMENTO: "Faturamento / Vendas",
+  TRIBUTOS: "Impostos / Tributos",
+  FORNECEDORES: "Fornecedores / Insumos",
+  EQUIPAMENTOS: "Equipamentos / Infra",
+  MARKETING: "Marketing / Comercial",
+  SERVICOS: "Serviços Contratados",
+  ALUGUEL_EMPRESARIAL: "Aluguel Comercial",
 };
+
+export const PF_CATEGORY_OPTIONS = [
+  { value: TransactionCategory.HOUSING, label: "Moradia" },
+  { value: TransactionCategory.TRANSPORTATION, label: "Transporte" },
+  { value: TransactionCategory.FOOD, label: "Alimentação" },
+  { value: TransactionCategory.ENTERTAINMENT, label: "Entretenimento" },
+  { value: TransactionCategory.HEALTH, label: "Saúde" },
+  { value: TransactionCategory.UTILITY, label: "Utilidade / Contas" },
+  { value: TransactionCategory.SALARY, label: "Salário" },
+  { value: TransactionCategory.EDUCATION, label: "Educação" },
+  { value: TransactionCategory.OTHER, label: "Outros (Pessoal)" },
+];
+
+export const PJ_CATEGORY_OPTIONS = [
+  { value: TransactionCategory.PRO_LABORE, label: "Pró-Labore" },
+  { value: TransactionCategory.FATURAMENTO, label: "Faturamento / Vendas" },
+  { value: TransactionCategory.TRIBUTOS, label: "Impostos / Tributos" },
+  { value: TransactionCategory.FORNECEDORES, label: "Fornecedores / Insumos" },
+  { value: TransactionCategory.EQUIPAMENTOS, label: "Equipamentos / Infra" },
+  { value: TransactionCategory.MARKETING, label: "Marketing / Comercial" },
+  { value: TransactionCategory.SERVICOS, label: "Serviços Contratados" },
+  {
+    value: TransactionCategory.ALUGUEL_EMPRESARIAL,
+    label: "Aluguel Comercial",
+  },
+  { value: TransactionCategory.OTHER, label: "Outros (Empresa)" },
+];
 
 export const TRANSACTION_PAYMENT_METHOD_LABELS = {
   CASH: "Dinheiro",
@@ -89,40 +123,9 @@ export const TRANSACTION_PAYMENT_METHOD_OPTIONS = [
 ];
 
 export const TRANSACTION_CATEGORY_OPTIONS = [
-  {
-    value: TransactionCategory.EDUCATION,
-    label: TRANSACTION_CATEGORY_LABELS[TransactionCategory.EDUCATION],
-  },
-  {
-    value: TransactionCategory.ENTERTAINMENT,
-    label: TRANSACTION_CATEGORY_LABELS[TransactionCategory.ENTERTAINMENT],
-  },
-  {
-    value: TransactionCategory.FOOD,
-    label: TRANSACTION_CATEGORY_LABELS[TransactionCategory.FOOD],
-  },
-  {
-    value: TransactionCategory.HEALTH,
-    label: TRANSACTION_CATEGORY_LABELS[TransactionCategory.HEALTH],
-  },
-  {
-    value: TransactionCategory.HOUSING,
-    label: TRANSACTION_CATEGORY_LABELS[TransactionCategory.HOUSING],
-  },
-  {
-    value: TransactionCategory.OTHER,
-    label: TRANSACTION_CATEGORY_LABELS[TransactionCategory.OTHER],
-  },
-  {
-    value: TransactionCategory.SALARY,
-    label: TRANSACTION_CATEGORY_LABELS[TransactionCategory.SALARY],
-  },
-  {
-    value: TransactionCategory.TRANSPORTATION,
-    label: TRANSACTION_CATEGORY_LABELS[TransactionCategory.TRANSPORTATION],
-  },
-  {
-    value: TransactionCategory.UTILITY,
-    label: TRANSACTION_CATEGORY_LABELS[TransactionCategory.UTILITY],
-  },
+  ...PF_CATEGORY_OPTIONS,
+  ...PJ_CATEGORY_OPTIONS.filter(
+    (item, index, self) =>
+      index === self.findIndex((t) => t.value === item.value),
+  ),
 ];

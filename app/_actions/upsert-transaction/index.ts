@@ -3,6 +3,7 @@
 import { db } from "@/app/_lib/prisma";
 import { auth } from "@clerk/nextjs/server";
 import {
+  AccountType,
   TransactionCategory,
   TransactionPaymentMethod,
   TransactionType,
@@ -13,11 +14,13 @@ import { endOfMonth, startOfMonth } from "date-fns";
 import { getUserSubscriptionPlan } from "@/app/_data/get-user-subscription-plan";
 import { FREE_PLAN_MONTHLY_TRANSACTION_LIMIT } from "@/app/_constants/transactions";
 
-interface UpsertTransactionParams {
+export interface UpsertTransactionParams {
   id?: string;
   name: string;
   amount: number;
   type: TransactionType;
+  tipo_transacao?: AccountType | null;
+  eh_dedutivel?: boolean | null;
   category: TransactionCategory;
   paymentMethod: TransactionPaymentMethod;
   date: Date;
@@ -63,8 +66,18 @@ export const upsertTransaction = async (params: UpsertTransactionParams) => {
   }
 
   await db.transaction.upsert({
-    update: { ...params, userId },
-    create: { ...params, userId },
+    update: {
+      ...params,
+      tipo_transacao: params.tipo_transacao ?? null,
+      eh_dedutivel: params.eh_dedutivel ?? false,
+      userId,
+    },
+    create: {
+      ...params,
+      tipo_transacao: params.tipo_transacao ?? null,
+      eh_dedutivel: params.eh_dedutivel ?? false,
+      userId,
+    },
     where: {
       id: params.id ?? "",
     },

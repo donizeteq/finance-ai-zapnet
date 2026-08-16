@@ -1,13 +1,34 @@
 import { db } from "@/app/_lib/prisma";
-import { TransactionType } from "@prisma/client";
+import { AccountType, TransactionType } from "@prisma/client";
 import { TotalExpensePerCategory, TransactionPercentagePerType } from "./types";
 import { auth } from "@clerk/nextjs/server";
 import { getMonthRange } from "@/app/_utils/month-range";
 
-export const getDashboard = async (month: string, year: string) => {
+export const getDashboard = async (
+  month: string,
+  year: string,
+  clientId?: string,
+  accountType?: AccountType | "ALL" | null,
+) => {
   const { userId } = await auth();
   if (!userId) {
     throw new Error("Unauthorized");
+  }
+
+  let targetUserId = userId;
+  if (clientId) {
+    const canAccess = await db.accountantClient.findUnique({
+      where: {
+        accountantId_clientId: {
+          accountantId: userId,
+          clientId: clientId,
+        },
+      },
+    });
+    if (!canAccess) {
+      throw new Error("Unauthorized access to client");
+    }
+    targetUserId = clientId;
   }
 
   const { start: startDate, end: endDate } = getMonthRange(
@@ -15,13 +36,19 @@ export const getDashboard = async (month: string, year: string) => {
     Number(month),
   );
 
-  const where = {
-    userId,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const where: Record<string, any> = {
+    userId: targetUserId,
     date: {
       gte: startDate,
-      lt: endDate, // end = 1º dia do mês seguinte (intervalo exclusivo)
+      lt: endDate,
     },
   };
+
+  // Filtro por tipo de conta (PF / PJ)
+  if (accountType && accountType !== "ALL") {
+    where.tipo_transacao = accountType as AccountType;
+  }
 
   // Todas as queries em paralelo
   const [

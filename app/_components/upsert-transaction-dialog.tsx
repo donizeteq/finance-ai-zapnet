@@ -32,10 +32,13 @@ import {
   TRANSACTION_CATEGORY_OPTIONS,
   TRANSACTION_PAYMENT_METHOD_OPTIONS,
   TRANSACTION_TYPE_OPTIONS,
+  PF_CATEGORY_OPTIONS,
+  PJ_CATEGORY_OPTIONS,
 } from "../_constants/transactions";
 import { DatePicker } from "./ui/date-picker";
 import { z } from "zod";
 import {
+  AccountType,
   TransactionCategory,
   TransactionPaymentMethod,
   TransactionType,
@@ -68,6 +71,8 @@ const formSchema = z.object({
   type: z.nativeEnum(TransactionType, {
     required_error: "O tipo é obrigatório.",
   }),
+  tipo_transacao: z.nativeEnum(AccountType).nullable().optional(),
+  eh_dedutivel: z.boolean().nullable().optional(),
   category: z.nativeEnum(TransactionCategory, {
     required_error: "A categoria é obrigatória.",
   }),
@@ -88,6 +93,8 @@ const DEFAULT_VALUES: FormSchema = {
   name: "",
   paymentMethod: "" as TransactionPaymentMethod,
   type: "" as TransactionType,
+  tipo_transacao: "PESSOAL" as AccountType,
+  eh_dedutivel: false,
 };
 
 const UpsertTransactionDialog = ({
@@ -104,10 +111,21 @@ const UpsertTransactionDialog = ({
     defaultValues: defaultValues ?? DEFAULT_VALUES,
   });
 
+  const selectedTipoTransacao = form.watch("tipo_transacao") ?? "PESSOAL";
+  const categoryOptions =
+    selectedTipoTransacao === "EMPRESA"
+      ? PJ_CATEGORY_OPTIONS
+      : PF_CATEGORY_OPTIONS;
+
   const onSubmit = async (data: FormSchema) => {
     try {
       setIsSubmitting(true);
-      await upsertTransaction({ ...data, id: transactionId });
+      await upsertTransaction({
+        ...data,
+        id: transactionId,
+        tipo_transacao: data.tipo_transacao ?? null,
+        eh_dedutivel: data.eh_dedutivel ?? false,
+      });
       setIsOpen(false);
       form.reset(DEFAULT_VALUES);
       toast.success(
@@ -146,6 +164,39 @@ const UpsertTransactionDialog = ({
 
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            {/* Seleção PF vs PJ */}
+            <FormField
+              control={form.control}
+              name="tipo_transacao"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Conta / Âmbito</FormLabel>
+                  <Select
+                    onValueChange={(val) => {
+                      field.onChange(val);
+                      form.setValue("category", "" as TransactionCategory);
+                    }}
+                    defaultValue={field.value ?? "PESSOAL"}
+                  >
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Selecione o âmbito..." />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="PESSOAL">
+                        Pessoa Física (Pessoal)
+                      </SelectItem>
+                      <SelectItem value="EMPRESA">
+                        Pessoa Jurídica (Empresa)
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
             <FormField
               control={form.control}
               name="name"
@@ -223,7 +274,7 @@ const UpsertTransactionDialog = ({
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      {TRANSACTION_CATEGORY_OPTIONS.map((option) => (
+                      {categoryOptions.map((option) => (
                         <SelectItem key={option.value} value={option.value}>
                           {option.label}
                         </SelectItem>

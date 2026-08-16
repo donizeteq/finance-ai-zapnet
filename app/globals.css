@@ -37,7 +37,8 @@ body {
     --accent-foreground: 240 5.9% 10%;
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0 100%;
-    --border: 240 5.9% 90%;
+        --border: 240 5.9% 90%;
+    --border-border: 240 5.9% 90%;
     --input: 240 5.9% 90%;
     --ring: 102 59% 44%; /* Adjusted for #55B02E */
     --radius: 0.5rem;
@@ -65,7 +66,8 @@ body {
     --accent-foreground: 0 0% 100%;
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 0 85.7% 97.3%;
-    --border: 240 3.7% 15.9%;
+        --border: 240 3.7% 15.9%;
+    --border-border: 240 3.7% 15.9%;
     --input: 240 3.7% 15.9%;
     --ring: 102 59% 44%; /* Adjusted for #55B02E */
     --chart-1: 220 70% 50%;
@@ -84,7 +86,9 @@ body {
     @apply min-h-screen overflow-x-hidden;
   }
   body {
-    @apply min-h-screen overflow-x-hidden bg-background text-foreground;
+    @apply min-h-screen overflow-x-hidden;
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
   }
   @media (max-width: 768px) {
     body {

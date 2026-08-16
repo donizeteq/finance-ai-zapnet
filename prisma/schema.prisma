@@ -17,6 +17,8 @@ model Transaction {
   id            String                   @id @default(uuid())
   name          String
   type          TransactionType
+  tipo_transacao AccountType?
+  eh_dedutivel  Boolean                  @default(false)
   amount        Decimal                  @db.Decimal(10, 2)
   category      TransactionCategory
   paymentMethod TransactionPaymentMethod
@@ -29,6 +31,20 @@ model Transaction {
   @@index([userId, date])
 }
 
+model AccountantClient {
+  id            String   @id @default(uuid())
+  accountantId  String
+  clientId      String
+  createdAt     DateTime @default(now())
+
+  @@unique([accountantId, clientId])
+}
+
+enum AccountType {
+  PESSOAL
+  EMPRESA
+}
+
 enum TransactionType {
   DEPOSIT
   EXPENSE
@@ -36,6 +52,7 @@ enum TransactionType {
 }
 
 enum TransactionCategory {
+  // Pessoal (PF)
   HOUSING
   TRANSPORTATION
   FOOD
@@ -45,6 +62,15 @@ enum TransactionCategory {
   SALARY
   EDUCATION
   OTHER
+  // Empresa (PJ)
+  PRO_LABORE
+  FATURAMENTO
+  TRIBUTOS
+  FORNECEDORES
+  EQUIPAMENTOS
+  MARKETING
+  SERVICOS
+  ALUGUEL_EMPRESARIAL
 }
 
 enum TransactionPaymentMethod {

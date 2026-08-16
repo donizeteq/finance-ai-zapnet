@@ -1,3 +1,4 @@
+import { db } from "@/app/_lib/prisma";
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import { Suspense } from "react";
@@ -12,6 +13,9 @@ import LastTransactions from "./_components/last-transactions";
 import { canUserAddTransaction } from "../_data/can-user-add-transaction";
 import AiReportButton from "./_components/ai-report-button";
 import { isMatch } from "date-fns";
+import { AccountType } from "@prisma/client";
+import SelectCliente from "./_components/select-cliente";
+import AccountTypeSelect from "./_components/account-type-select";
 import {
   SummaryCardsSkeleton,
   ChartSkeleton,
@@ -24,11 +28,13 @@ interface HomeProps {
   searchParams: Promise<{
     month: string;
     year: string;
+    clientId?: string;
+    accountType?: string;
   }>;
 }
 
 const Home = async ({ searchParams }: HomeProps) => {
-  const { month, year } = await searchParams;
+  const { month, year, clientId, accountType } = await searchParams;
   const { userId } = await auth();
   if (!userId) {
     redirect("/login");
@@ -39,15 +45,32 @@ const Home = async ({ searchParams }: HomeProps) => {
   if (monthIsInvalid || yearIsInvalid) {
     const currentMonth = String(new Date().getMonth() + 1).padStart(2, "0");
     const currentYear = new Date().getFullYear();
-    redirect(`?month=${currentMonth}&year=${currentYear}`);
+    const query = new URLSearchParams({
+      month: currentMonth,
+      year: String(currentYear),
+    });
+    if (clientId) query.set("clientId", clientId);
+    if (accountType) query.set("accountType", accountType);
+    redirect(`?${query.toString()}`);
   }
 
   // Buscando dados do dashboard em paralelo
-  const [dashboard, userCanAddTransaction, subscriptionPlan] =
+  const [dashboard, userCanAddTransaction, subscriptionPlan, clientes] =
     await Promise.all([
-      getDashboard(month, year),
+      getDashboard(month, year, clientId, accountType as AccountType | "ALL"),
       canUserAddTransaction(),
       getUserSubscriptionPlan(userId),
+      db.accountantClient
+        .findMany({
+          where: { accountantId: userId },
+          select: { clientId: true },
+        })
+        .then(async (res) => {
+          return res.map((r) => ({
+            id: r.clientId,
+            name: "Cliente " + r.clientId.slice(0, 4),
+          }));
+        }),
     ]);
 
   const isPremium = subscriptionPlan === "premium";
@@ -74,6 +97,8 @@ const Home = async ({ searchParams }: HomeProps) => {
         <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <h1 className="text-xl font-bold md:text-2xl">Dashboard</h1>
           <div className="flex items-center gap-2 md:gap-3">
+            <AccountTypeSelect />
+            <SelectCliente clientes={clientes} />
             <AiReportButton
               month={month}
               year={year}

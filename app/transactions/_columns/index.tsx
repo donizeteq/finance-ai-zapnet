@@ -23,10 +23,18 @@ export const transactionColumns: ColumnDef<Transaction>[] = [
     ),
   },
   {
-    accessorKey: "category",
-    header: "Categoria",
+    accessorKey: "tipo_transacao",
+    header: "Âmbito",
     cell: ({ row: { original: transaction } }) => (
-      <span>{TRANSACTION_CATEGORY_LABELS[transaction.category]}</span>
+      <span
+        className={
+          transaction.tipo_transacao === "EMPRESA"
+            ? "font-bold text-emerald-500"
+            : "text-muted-foreground"
+        }
+      >
+        {transaction.tipo_transacao === "EMPRESA" ? "PJ" : "PF"}
+      </span>
     ),
   },
   {
