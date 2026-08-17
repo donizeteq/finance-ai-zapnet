@@ -97,8 +97,12 @@ const Home = async ({ searchParams }: HomeProps) => {
         <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <h1 className="text-xl font-bold md:text-2xl">Dashboard</h1>
           <div className="flex items-center gap-2 md:gap-3">
-            <AccountTypeSelect />
-            <SelectCliente clientes={clientes} />
+            <Suspense fallback={null}>
+              <AccountTypeSelect />
+            </Suspense>
+            <Suspense fallback={null}>
+              <SelectCliente clientes={clientes} />
+            </Suspense>
             <AiReportButton
               month={month}
               year={year}
