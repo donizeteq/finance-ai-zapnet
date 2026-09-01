@@ -1,4 +1,4 @@
-import { auth } from "@clerk/nextjs/server";
+import { auth, currentUser } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import NavBar from "@/app/_components/navbar";
 import { getAdminMetrics } from "@/app/_data/get-admin-metrics";
@@ -30,8 +30,24 @@ export const dynamic = "force-dynamic";
 
 export default async function AdminPage() {
   const { userId } = await auth();
-  if (!userId) {
+  const user = await currentUser();
+
+  if (!userId || !user) {
     redirect("/login");
+  }
+
+  const userEmail = user.emailAddresses?.[0]?.emailAddress?.toLowerCase() || "";
+  const role = user.publicMetadata?.role;
+
+  const isAdmin =
+    role === "admin" ||
+    userEmail.includes("donizete") ||
+    userEmail.includes("zapnet") ||
+    userEmail.includes("talkyngo") ||
+    userEmail === "donizeteqsud@gmail.com";
+
+  if (!isAdmin) {
+    redirect("/");
   }
 
   const metrics = await getAdminMetrics();

@@ -15,6 +15,16 @@ const NavBarInner = () => {
   const metadata = user?.publicMetadata ?? {};
   const isPremium = isLoaded && metadata.subscriptionPlan === "premium";
 
+  const userEmail =
+    user?.primaryEmailAddress?.emailAddress?.toLowerCase() || "";
+  const isAdmin =
+    isLoaded &&
+    (metadata.role === "admin" ||
+      userEmail.includes("donizete") ||
+      userEmail.includes("zapnet") ||
+      userEmail.includes("talkyngo") ||
+      userEmail === "donizeteqsud@gmail.com");
+
   const toggleMenu = () => setIsOpen(!isOpen);
 
   const linkClass = (path: string) =>
@@ -40,9 +50,11 @@ const NavBarInner = () => {
         <Link href="/subscription" className={linkClass("/subscription")}>
           Assinatura
         </Link>
-        <Link href="/admin" className={linkClass("/admin")}>
-          Painel Admin
-        </Link>
+        {isAdmin && (
+          <Link href="/admin" className={linkClass("/admin")}>
+            Painel Admin
+          </Link>
+        )}
         {isPremium && (
           <span className="flex items-center gap-1 rounded-full bg-gradient-to-r from-amber-500 to-yellow-500 px-3 py-1 text-xs font-bold text-black">
             <CrownIcon className="h-3 w-3" />
@@ -86,6 +98,15 @@ const NavBarInner = () => {
           >
             Assinatura
           </Link>
+          {isAdmin && (
+            <Link
+              href="/admin"
+              className={linkClass("/admin")}
+              onClick={toggleMenu}
+            >
+              Painel Admin
+            </Link>
+          )}
           {isPremium && (
             <span className="flex w-fit items-center gap-1 rounded-full bg-gradient-to-r from-amber-500 to-yellow-500 px-3 py-1 text-xs font-bold text-black">
               <CrownIcon className="h-3 w-3" />
