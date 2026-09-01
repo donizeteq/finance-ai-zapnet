@@ -40,6 +40,9 @@ const NavBarInner = () => {
         <Link href="/subscription" className={linkClass("/subscription")}>
           Assinatura
         </Link>
+        <Link href="/admin" className={linkClass("/admin")}>
+          Painel Admin
+        </Link>
         {isPremium && (
           <span className="flex items-center gap-1 rounded-full bg-gradient-to-r from-amber-500 to-yellow-500 px-3 py-1 text-xs font-bold text-black">
             <CrownIcon className="h-3 w-3" />
