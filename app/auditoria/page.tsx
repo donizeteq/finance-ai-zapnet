@@ -9,7 +9,13 @@ import {
 import { Button } from "@/app/_components/ui/button";
 import NavBar from "@/app/_components/navbar";
 import { useEffect, useState } from "react";
-import { DownloadIcon, Building2Icon, FileSpreadsheetIcon } from "lucide-react";
+import {
+  DownloadIcon,
+  Building2Icon,
+  FileSpreadsheetIcon,
+  PrinterIcon,
+  TrendingUpIcon,
+} from "lucide-react";
 
 export default function AuditoriaPage() {
   const [dre, setDre] = useState({
@@ -29,11 +35,19 @@ export default function AuditoriaPage() {
       .finally(() => setLoading(false));
   }, []);
 
+  const fatNum =
+    parseFloat(String(dre.faturamento).replace(/\./g, "").replace(",", ".")) ||
+    0;
+  const lucNum =
+    parseFloat(String(dre.lucroLiquido).replace(/\./g, "").replace(",", ".")) ||
+    0;
+  const margemLucro = fatNum > 0 ? ((lucNum / fatNum) * 100).toFixed(1) : "0.0";
+
   return (
     <>
       <NavBar />
-      <div className="flex flex-col space-y-6 p-6">
-        <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
+      <div className="flex flex-col space-y-6 p-6 print:p-0">
+        <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between print:hidden">
           <div>
             <h1 className="flex items-center gap-2 text-xl font-bold md:text-2xl">
               <Building2Icon className="h-6 w-6 text-primary" />
@@ -44,7 +58,15 @@ export default function AuditoriaPage() {
               (Pessoa Jurídica)
             </p>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-3">
+            <Button
+              variant="outline"
+              className="gap-2"
+              onClick={() => window.print()}
+            >
+              <PrinterIcon className="h-4 w-4" />
+              Imprimir / Salvar PDF
+            </Button>
             <Button
               variant="outline"
               className="gap-2"
@@ -64,7 +86,17 @@ export default function AuditoriaPage() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+        {/* CABEÇALHO PARA IMPRESSÃO EM PDF */}
+        <div className="mb-6 hidden border-b pb-4 print:block">
+          <h1 className="text-2xl font-bold">
+            Relatório DRE & Auditoria Contábil — Finance AI
+          </h1>
+          <p className="text-sm text-gray-600">
+            Demonstrativo do Resultado do Exercício — Pessoa Jurídica
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-4">
           <Card>
             <CardHeader className="pb-2">
               <CardTitle className="text-sm font-medium text-muted-foreground">
@@ -100,6 +132,20 @@ export default function AuditoriaPage() {
             <CardContent>
               <div className="text-2xl font-bold text-primary">
                 R$ {dre.lucroLiquido}
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="flex items-center gap-1.5 text-sm font-medium text-muted-foreground">
+                <TrendingUpIcon className="h-4 w-4 text-emerald-400" />
+                Margem Líquida
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-emerald-400">
+                {margemLucro}%
               </div>
             </CardContent>
           </Card>
