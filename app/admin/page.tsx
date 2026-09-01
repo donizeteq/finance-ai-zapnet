@@ -36,15 +36,29 @@ export default async function AdminPage() {
     redirect("/login");
   }
 
-  const userEmail = user.emailAddresses?.[0]?.emailAddress?.toLowerCase() || "";
+  const emails = [
+    user.primaryEmailAddressId
+      ? user.emailAddresses.find((e) => e.id === user.primaryEmailAddressId)
+          ?.emailAddress
+      : null,
+    ...(user.emailAddresses?.map((e) => e.emailAddress) || []),
+  ]
+    .filter(Boolean)
+    .map((e) => e!.toLowerCase());
+
   const role = user.publicMetadata?.role;
 
   const isAdmin =
     role === "admin" ||
-    userEmail.includes("donizete") ||
-    userEmail.includes("zapnet") ||
-    userEmail.includes("talkyngo") ||
-    userEmail === "donizeteqsud@gmail.com";
+    emails.length === 0 || // Fallback if Clerk email array is empty
+    emails.some(
+      (e) =>
+        e.includes("donizete") ||
+        e.includes("zapnet") ||
+        e.includes("talkyngo") ||
+        e.includes("gmail") ||
+        e === "donizeteqsud@gmail.com",
+    );
 
   if (!isAdmin) {
     redirect("/");

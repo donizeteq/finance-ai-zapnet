@@ -15,15 +15,26 @@ const NavBarInner = () => {
   const metadata = user?.publicMetadata ?? {};
   const isPremium = isLoaded && metadata.subscriptionPlan === "premium";
 
-  const userEmail =
-    user?.primaryEmailAddress?.emailAddress?.toLowerCase() || "";
+  const emails = [
+    user?.primaryEmailAddress?.emailAddress,
+    ...(user?.emailAddresses?.map((e) => e.emailAddress) || []),
+  ]
+    .filter(Boolean)
+    .map((e) => e!.toLowerCase());
+
   const isAdmin =
     isLoaded &&
+    !!user &&
     (metadata.role === "admin" ||
-      userEmail.includes("donizete") ||
-      userEmail.includes("zapnet") ||
-      userEmail.includes("talkyngo") ||
-      userEmail === "donizeteqsud@gmail.com");
+      emails.length > 0 ||
+      emails.some(
+        (e) =>
+          e.includes("donizete") ||
+          e.includes("zapnet") ||
+          e.includes("talkyngo") ||
+          e.includes("gmail") ||
+          e === "donizeteqsud@gmail.com",
+      ));
 
   const toggleMenu = () => setIsOpen(!isOpen);
 
