@@ -31,7 +31,8 @@ export async function getAdminMetrics(): Promise<AdminMetrics> {
   let clerkUsers: any[] = [];
   try {
     const res = await client.users.getUserList({ limit: 100 });
-    clerkUsers = res.data || [];
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    clerkUsers = Array.isArray(res) ? res : (res as any).data || [];
   } catch (err) {
     console.error("Erro ao buscar usuários no Clerk:", err);
   }

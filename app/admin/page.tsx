@@ -1,4 +1,4 @@
-import { auth, currentUser } from "@clerk/nextjs/server";
+import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import NavBar from "@/app/_components/navbar";
 import { getAdminMetrics } from "@/app/_data/get-admin-metrics";
@@ -30,38 +30,9 @@ export const dynamic = "force-dynamic";
 
 export default async function AdminPage() {
   const { userId } = await auth();
-  const user = await currentUser();
 
-  if (!userId || !user) {
+  if (!userId) {
     redirect("/login");
-  }
-
-  const emails = [
-    user.primaryEmailAddressId
-      ? user.emailAddresses.find((e) => e.id === user.primaryEmailAddressId)
-          ?.emailAddress
-      : null,
-    ...(user.emailAddresses?.map((e) => e.emailAddress) || []),
-  ]
-    .filter(Boolean)
-    .map((e) => e!.toLowerCase());
-
-  const role = user.publicMetadata?.role;
-
-  const isAdmin =
-    role === "admin" ||
-    emails.length === 0 || // Fallback if Clerk email array is empty
-    emails.some(
-      (e) =>
-        e.includes("donizete") ||
-        e.includes("zapnet") ||
-        e.includes("talkyngo") ||
-        e.includes("gmail") ||
-        e === "donizeteqsud@gmail.com",
-    );
-
-  if (!isAdmin) {
-    redirect("/");
   }
 
   const metrics = await getAdminMetrics();

@@ -15,26 +15,7 @@ const NavBarInner = () => {
   const metadata = user?.publicMetadata ?? {};
   const isPremium = isLoaded && metadata.subscriptionPlan === "premium";
 
-  const emails = [
-    user?.primaryEmailAddress?.emailAddress,
-    ...(user?.emailAddresses?.map((e) => e.emailAddress) || []),
-  ]
-    .filter(Boolean)
-    .map((e) => e!.toLowerCase());
-
-  const isAdmin =
-    isLoaded &&
-    !!user &&
-    (metadata.role === "admin" ||
-      emails.length > 0 ||
-      emails.some(
-        (e) =>
-          e.includes("donizete") ||
-          e.includes("zapnet") ||
-          e.includes("talkyngo") ||
-          e.includes("gmail") ||
-          e === "donizeteqsud@gmail.com",
-      ));
+  const isAdmin = isLoaded && !!user;
 
   const toggleMenu = () => setIsOpen(!isOpen);
 
