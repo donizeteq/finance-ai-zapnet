@@ -178,7 +178,7 @@ export default function OpenFinanceWidget() {
 
       {connectToken && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
-          <div className="relative w-full max-w-lg rounded-lg bg-background p-4">
+          <div className="relative flex min-h-[500px] w-full max-w-lg flex-col rounded-lg bg-background p-4">
             <Button
               variant="ghost"
               className="absolute right-2 top-2 text-muted-foreground"

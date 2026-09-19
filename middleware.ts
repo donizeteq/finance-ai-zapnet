@@ -33,7 +33,7 @@ export default clerkMiddleware(async (auth, request) => {
   // Headers de segurança
   const response = NextResponse.next();
 
-  response.headers.set("X-Frame-Options", "DENY");
+  response.headers.set("X-Frame-Options", "SAMEORIGIN");
   response.headers.set("X-Content-Type-Options", "nosniff");
   response.headers.set("X-XSS-Protection", "1; mode=block");
   response.headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
@@ -44,12 +44,12 @@ export default clerkMiddleware(async (auth, request) => {
     "Content-Security-Policy",
     [
       "default-src 'self'",
-      `script-src 'self'${isDev ? " 'unsafe-eval'" : ""} 'unsafe-inline' https://*.clerk.accounts.dev`,
-      "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://*.clerk.accounts.dev",
+      `script-src 'self'${isDev ? " 'unsafe-eval'" : ""} 'unsafe-inline' https://*.clerk.accounts.dev https://*.pluggy.ai https://cdn.pluggy.ai`,
+      "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://*.clerk.accounts.dev https://*.pluggy.ai",
       "font-src 'self' https://fonts.gstatic.com",
-      "img-src 'self' data: https:",
-      "connect-src 'self' https://*.clerk.com https://*.clerk.accounts.dev https://clerk-telemetry.com wss://*.clerk.accounts.dev",
-      "frame-src https://*.clerk.accounts.dev",
+      "img-src 'self' data: https: https://*.pluggy.ai",
+      "connect-src 'self' https://*.clerk.com https://*.clerk.accounts.dev https://clerk-telemetry.com wss://*.clerk.accounts.dev https://*.pluggy.ai https://api.pluggy.ai",
+      "frame-src 'self' https://*.clerk.accounts.dev https://*.pluggy.ai https://connect.pluggy.ai",
       "worker-src 'self' blob:",
     ].join("; "),
   );
