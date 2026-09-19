@@ -1,3 +1,4 @@
+import { describe, test, expect } from "vitest";
 import { validateComprovanteFile, sanitizeFilename } from "./file-sanitizer";
 
 describe("Sanitização de Uploads e Validação de Comprovantes", () => {
