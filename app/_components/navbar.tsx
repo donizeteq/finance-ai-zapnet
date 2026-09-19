@@ -42,6 +42,9 @@ const NavBarInner = () => {
         <Link href="/subscription" className={linkClass("/subscription")}>
           Assinatura
         </Link>
+        <Link href="/open-finance" className={linkClass("/open-finance")}>
+          Open Finance
+        </Link>
         {isAdmin && (
           <Link href="/admin" className={linkClass("/admin")}>
             Painel Admin
@@ -89,6 +92,13 @@ const NavBarInner = () => {
             onClick={toggleMenu}
           >
             Assinatura
+          </Link>
+          <Link
+            href="/open-finance"
+            className={linkClass("/open-finance")}
+            onClick={toggleMenu}
+          >
+            Open Finance
           </Link>
           {isAdmin && (
             <Link

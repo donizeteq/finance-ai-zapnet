@@ -8,7 +8,15 @@ const isProtectedRoute = createRouteMatcher([
   "/admin(.*)",
 ]);
 
+// Define rotas públicas de webhooks
+const isPublicRoute = createRouteMatcher(["/api/webhooks/(.*)"]);
+
 export default clerkMiddleware(async (auth, request) => {
+  // Ignora verificação do Clerk e redirecionamentos para webhooks
+  if (isPublicRoute(request)) {
+    return NextResponse.next();
+  }
+
   const { userId } = await auth();
 
   // Proteção contra ataques de força bruta
@@ -17,7 +25,7 @@ export default clerkMiddleware(async (auth, request) => {
     return new NextResponse("Bad Request", { status: 400 });
   }
 
-  // Verificar se é uma rota protegida — usa o redirectToSignIn nativo do Clerk
+  // Verificar se é uma rota protegida
   if (isProtectedRoute(request) && !userId) {
     return (await auth()).redirectToSignIn({ returnBackUrl: request.url });
   }
@@ -30,9 +38,6 @@ export default clerkMiddleware(async (auth, request) => {
   response.headers.set("X-XSS-Protection", "1; mode=block");
   response.headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
 
-  // Content Security Policy
-  // Em dev, 'unsafe-eval' é necessário para o HMR do webpack/Next.js.
-  // Em produção, o Next.js não usa eval e o unsafe-eval pode ser removido.
   const isDev = process.env.NODE_ENV === "development";
 
   response.headers.set(
